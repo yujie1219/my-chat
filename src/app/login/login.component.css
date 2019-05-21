@@ -4,16 +4,18 @@
     flex-flow:column wrap;
     justify-content: center;
     align-items:center;
+    background-color: cornsilk;
 }
 
 .login-form{
-    height: 30%;
-    width: 25%;
+    height: 300px;
+    width: 500px;
     background-color: lavender;
     display:flex;
     flex-flow:column wrap;
     justify-content: center;
     align-items:center;
+    border-radius: 10px;
 }
 
 .login-title{
@@ -45,4 +47,12 @@ form{
 button{
     width: 60%;
     margin: 0 auto;
+}
+
+.control-error{
+    display: block;
+    color: red;
+    font-size: 0.8em;
+    margin-bottom: -19px;
+    margin-left: 17%;
 }

@@ -1,16 +1,26 @@
 <div class="center-container">
     <span class="login-title">MyChat</span>
     <div class="login-form">
-        <form>
+        <form [formGroup]="loginForm">
             <div class="form-group">
                 <label for="userName">用户名</label>
-                <input type="text" class="form-control" id="userName" placeholder="请输入用户名">
+                <input type="text" class="form-control" id="userName" (focus)="focus(userName)" placeholder="请输入用户名"
+                    formControlName="userName">
+                <span *ngIf="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)"
+                    class="control-error">
+                    用户名不能为空
+                </span>
             </div>
             <div class="form-group">
                 <label for="userPwd">密码</label>
-                <input type="password" class="form-control" id="userPwd" placeholder="请输入密码">
+                <input type="password" class="form-control" id="userPwd" (focus)="focus(password)" placeholder="请输入密码"
+                    formControlName="password">
+                <span *ngIf="password.errors?.nullOrEmpty && (password.touched || password.dirty)"
+                    class="control-error">
+                    密码不能为空
+                </span>
             </div>
         </form>
-        <button class="btn btn-primary">登录</button>
+        <button class="btn btn-primary" (click)="login()" [disabled]="!loginForm.valid">登录</button>
     </div>
 </div>
