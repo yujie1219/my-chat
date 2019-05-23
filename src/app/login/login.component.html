@@ -1,7 +1,7 @@
 <div class="center-container">
     <span class="login-title">MyChat</span>
     <div class="login-form">
-        <form [formGroup]="loginForm">
+        <form class="center-wrapper" [formGroup]="loginForm">
             <div class="form-group">
                 <label for="userName">用户名</label>
                 <input type="text" class="form-control" id="userName" (focus)="focus(userName)" placeholder="请输入用户名"
@@ -21,6 +21,12 @@
                 </span>
             </div>
         </form>
-        <button class="btn btn-primary" (click)="login()" [disabled]="!loginForm.valid">登录</button>
+        <div class="center-wrapper">
+            <div class="form-check">
+                <p-checkbox name="register" label="注册" [(ngModel)]="register" binary="true"></p-checkbox>
+            </div>
+        </div>
+        <button class="btn btn-primary" (click)="login()"
+            [disabled]="!loginForm.valid">{{!register?"已有账号，直接登录":"注册并登录"}}</button>
     </div>
 </div>

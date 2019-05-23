@@ -35,7 +35,7 @@ input[type=text],input[type=password]{
     margin-left: 5px;
 }
 
-form{
+.center-wrapper{
     margin: 0 auto;
     width: 80%;
 }
@@ -55,4 +55,10 @@ button{
     font-size: 0.8em;
     margin-bottom: -19px;
     margin-left: 17%;
+}
+
+.form-check{
+    margin-top: -30px;
+    margin-bottom: 20px;
+    padding-left: 70%;
 }
