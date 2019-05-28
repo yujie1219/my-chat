@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
-import { HttpService } from '../share/http.service';
+import { HttpService } from '../share/service/http.service';
+import { Result, User } from '../share/template/pojo';
+import { Token } from '@angular/compiler';
 
 @Component({
     templateUrl: `./login.component.html`,
@@ -13,6 +15,9 @@ export class LoginComponent {
     });
 
     public register = false;
+    public modalDisplay = false;
+    public modalTitle: string;
+    public modalContent: string;
 
     public get userName() {
         return this.loginForm.get('userName');
@@ -27,17 +32,27 @@ export class LoginComponent {
     }
 
     public async login() {
-        console.log(this.loginForm.value);
-        let token = '';
+        let result: Result<Token> = null;
+        const user: User = {
+            userName: this.userName.value,
+            password: this.password.value
+        };
         try {
             if (this.register) {
-                token = await this.httpService.registerApi(this.userName.value, this.password.value);
+                result = await this.httpService.registerApi(user);
             } else {
-                token = await this.httpService.loginApi(this.userName.value, this.password.value);
+                result = await this.httpService.loginApi(user);
             }
-            console.log(token);
+            if (result && result.value) {
+                console.log(result.value);
+                const token: Token = result.value;
+            } else if (result.errorMessage) {
+                console.log(result.errorMessage);
+            }
         } catch (e) {
-            console.log(e);
+            this.modalDisplay = true;
+            this.modalTitle = '登录失败';
+            this.modalContent = e.error.errorMessage;
         }
     }
 

@@ -30,3 +30,6 @@
             [disabled]="!loginForm.valid">{{!register?"已有账号，直接登录":"注册并登录"}}</button>
     </div>
 </div>
+
+<custom-modal [display]="modalDisplay" [title]="modalTitle" [message]="modalContent" [onlyShowSureBtn]="true">
+</custom-modal>
