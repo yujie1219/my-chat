@@ -2,29 +2,44 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpService } from './service/http.service';
 import { CookieService } from 'ngx-cookie-service';
-import { ModalComponent } from './component/modal/modal.component';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { CommonModule } from '@angular/common';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { ErrorModalComponent } from './component/modal/errorModal.component';
+import { ShareService } from './service/share.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { RquestInterceptor } from './service/httpInterceptor.service';
+
+export const httpInterceptorProviders = [
+    {
+        provide: HTTP_INTERCEPTORS, useClass: RquestInterceptor, multi: true
+    }
+];
 
 @NgModule({
     imports: [
         HttpClientModule,
         CommonModule,
         DialogModule,
-        ButtonModule
+        ButtonModule,
+        ModalModule.forRoot()
     ],
     declarations: [
-        ModalComponent
+        ErrorModalComponent
     ],
     exports: [
         CommonModule,
-        ButtonModule,
-        ModalComponent
+        ButtonModule
     ],
     providers: [
         HttpService,
-        CookieService
+        CookieService,
+        ShareService,
+        httpInterceptorProviders
+    ],
+    entryComponents: [
+        ErrorModalComponent
     ]
 })
 export class ShareModule {

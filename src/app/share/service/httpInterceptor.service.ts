@@ -13,9 +13,10 @@ export class RquestInterceptor implements HttpInterceptor {
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-        if (this.cookie.get(ACCESS_TOKEN)) {
+        const accessToken = this.cookie.get(ACCESS_TOKEN);
+        if (accessToken) {
             const authReq = req.clone({
-                setHeaders: {}
+                setHeaders: { Authorization: accessToken }
             });
             return next.handle(authReq);
         }

@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
 import { HttpService } from '../share/service/http.service';
-import { Result, User } from '../share/template/pojo';
-import { Token } from '@angular/compiler';
+import { Result, User, Token } from '../share/template/pojo';
+import { ShareService } from '../share/service/share.service';
+import { CookieService } from 'ngx-cookie-service';
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../share/template/constant';
+import { Router } from '@angular/router';
 
 @Component({
     templateUrl: `./login.component.html`,
@@ -15,9 +18,6 @@ export class LoginComponent {
     });
 
     public register = false;
-    public modalDisplay = false;
-    public modalTitle: string;
-    public modalContent: string;
 
     public get userName() {
         return this.loginForm.get('userName');
@@ -27,7 +27,9 @@ export class LoginComponent {
         return this.loginForm.get('password');
     }
 
-    constructor(private httpService: HttpService) {
+    constructor(private httpService: HttpService, private shareService: ShareService,
+        // tslint:disable-next-line:align
+        private cookieService: CookieService, private router: Router) {
 
     }
 
@@ -46,13 +48,18 @@ export class LoginComponent {
             if (result && result.value) {
                 console.log(result.value);
                 const token: Token = result.value;
+                const expiresDate = new Date();
+                expiresDate.setTime(expiresDate.getTime() + (30 * 60 * 1000));
+                this.cookieService.set(ACCESS_TOKEN, token.accessToken, expiresDate);
+                expiresDate.setTime(expiresDate.getTime() - (30 * 60 * 1000) + (24 * 60 * 60 * 1000));
+                this.cookieService.set(REFRESH_TOKEN, token.refreshToken, expiresDate);
+
+                this.router.navigate(['../chat']);
             } else if (result.errorMessage) {
-                console.log(result.errorMessage);
+                this.shareService.openErrorModal('登录失败', result.errorMessage);
             }
         } catch (e) {
-            this.modalDisplay = true;
-            this.modalTitle = '登录失败';
-            this.modalContent = e.error.errorMessage;
+            this.shareService.openErrorModal('登录失败', e.error.errorMessage);
         }
     }
 
