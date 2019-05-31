@@ -4,7 +4,7 @@ import { HttpService } from '../share/service/http.service';
 import { Result, User, Token } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
 import { CookieService } from 'ngx-cookie-service';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../share/template/constant';
+import { ACCESS_TOKEN, REFRESH_TOKEN, USER_NAME, ACCESS_TOKEN_TIME, REFRESH_TOKEN_TIME } from '../share/template/constant';
 import { Router } from '@angular/router';
 
 @Component({
@@ -29,7 +29,7 @@ export class LoginComponent {
 
     constructor(private httpService: HttpService, private shareService: ShareService,
         // tslint:disable-next-line:align
-        private cookieService: CookieService, private router: Router) {
+        private router: Router) {
 
     }
 
@@ -46,13 +46,8 @@ export class LoginComponent {
                 result = await this.httpService.loginApi(user);
             }
             if (result && result.value) {
-                console.log(result.value);
                 const token: Token = result.value;
-                const expiresDate = new Date();
-                expiresDate.setTime(expiresDate.getTime() + (30 * 60 * 1000));
-                this.cookieService.set(ACCESS_TOKEN, token.accessToken, expiresDate);
-                expiresDate.setTime(expiresDate.getTime() - (30 * 60 * 1000) + (24 * 60 * 60 * 1000));
-                this.cookieService.set(REFRESH_TOKEN, token.refreshToken, expiresDate);
+                this.shareService.saveToken(token, user.userName);
 
                 this.router.navigate(['../chat']);
             } else if (result.errorMessage) {

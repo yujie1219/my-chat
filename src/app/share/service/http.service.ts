@@ -17,4 +17,14 @@ export class HttpService {
     public registerApi(user: User): Promise<Result<Token>> {
         return this.http.post<Result<Token>>(this.bathUrl + '/user/register', user).toPromise();
     }
+
+    public getAccessToken(userName: string, refreshToken: string): Promise<Result<Token>> {
+        const option = {
+            params: {
+                userName,
+                refreshToken
+            }
+        };
+        return this.http.get<Result<Token>>(this.bathUrl + '/auth/accessToken', option).toPromise();
+    }
 }

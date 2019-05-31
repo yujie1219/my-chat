@@ -9,11 +9,11 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { ErrorModalComponent } from './component/modal/errorModal.component';
 import { ShareService } from './service/share.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RquestInterceptor } from './service/httpInterceptor.service';
+import { AuthInterceptor } from './service/authInterceptor.service';
 
 export const httpInterceptorProviders = [
     {
-        provide: HTTP_INTERCEPTORS, useClass: RquestInterceptor, multi: true
+        provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true
     }
 ];
 
