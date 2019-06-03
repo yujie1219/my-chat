@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { LoginModule } from './login/login.module';
 import { ShareModule } from './share/share.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ChatModule } from './chat/chat.module';
+import { MainInterfaceModule } from './mainInterface/mainInterface.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +18,7 @@ import { ChatModule } from './chat/chat.module';
     AppRoutingModule,
     ShareModule,
     LoginModule,
-    ChatModule
+    MainInterfaceModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -8,6 +8,6 @@ import { Component } from '@angular/core';
         </div>
     `
 })
-export class ChatIndexComponent {
+export class MainInterfaceComponent {
 
 }
