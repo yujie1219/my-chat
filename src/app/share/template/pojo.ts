@@ -15,3 +15,8 @@ export interface User {
     userName: string;
     password: string;
 }
+
+export interface Friend {
+    friendName: string;
+    messages?: string[];
+}

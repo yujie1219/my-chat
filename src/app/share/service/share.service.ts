@@ -7,8 +7,6 @@ import { CookieService } from 'ngx-cookie-service';
 
 @Injectable()
 export class ShareService {
-    public currentUserName: string;
-
     constructor(private modalService: BsModalService, private cookieService: CookieService) { }
 
     public openErrorModal(errorTitle: string, errorMessage: string) {

@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { User, Result, Token } from '../template/pojo';
+import { User, Result, Token, Friend } from '../template/pojo';
 
 @Injectable()
 export class HttpService {
-    private bathUrl = 'http://127.0.0.1:8081';
+    private baseUrl = 'http://127.0.0.1:8081';
 
     constructor(private http: HttpClient) {
 
     }
 
     public loginApi(user: User): Promise<Result<Token>> {
-        return this.http.post<Result<Token>>(this.bathUrl + '/user/login', user).toPromise();
+        return this.http.post<Result<Token>>(this.baseUrl + '/user/login', user).toPromise();
     }
 
     public registerApi(user: User): Promise<Result<Token>> {
-        return this.http.post<Result<Token>>(this.bathUrl + '/user/register', user).toPromise();
+        return this.http.post<Result<Token>>(this.baseUrl + '/user/register', user).toPromise();
     }
 
     public getAccessToken(userName: string, refreshToken: string): Promise<Result<Token>> {
@@ -25,6 +25,15 @@ export class HttpService {
                 refreshToken
             }
         };
-        return this.http.get<Result<Token>>(this.bathUrl + '/auth/accessToken', option).toPromise();
+        return this.http.get<Result<Token>>(this.baseUrl + '/auth/accessToken', option).toPromise();
+    }
+
+    public getFriends(userName: string): Promise<Result<Friend[]>> {
+        const option = {
+            params: {
+                userName
+            }
+        };
+        return this.http.get<Result<Friend[]>>(this.baseUrl + '/user/friends', option).toPromise();
     }
 }

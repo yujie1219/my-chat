@@ -3,8 +3,6 @@ import { FormGroup, FormControl, ValidatorFn, AbstractControl } from '@angular/f
 import { HttpService } from '../share/service/http.service';
 import { Result, User, Token } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
-import { CookieService } from 'ngx-cookie-service';
-import { ACCESS_TOKEN, REFRESH_TOKEN, USER_NAME, ACCESS_TOKEN_TIME, REFRESH_TOKEN_TIME } from '../share/template/constant';
 import { Router } from '@angular/router';
 
 @Component({
