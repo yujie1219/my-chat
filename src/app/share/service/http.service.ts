@@ -36,4 +36,8 @@ export class HttpService {
         };
         return this.http.get<Result<Friend[]>>(this.baseUrl + '/user/friends', option).toPromise();
     }
+
+    public addFriend(firend: Friend): Promise<Result<Friend>> {
+        return this.http.post<Result<Friend>>(this.baseUrl + '/user/friend', firend).toPromise();
+    }
 }

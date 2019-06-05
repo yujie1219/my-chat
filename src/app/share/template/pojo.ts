@@ -18,5 +18,15 @@ export interface User {
 
 export interface Friend {
     friendName: string;
-    messages?: string[];
+    ownerName: string;
+    lastMessage: Message;
+    messages?: Message[];
+}
+
+export interface Message {
+    messageId: string;
+    formUserName: string;
+    toFriendName: string;
+    content: string;
+    createDate: string;
 }

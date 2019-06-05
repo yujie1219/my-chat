@@ -46,16 +46,8 @@ export class FriendLabelComponent implements OnInit {
     }
 
     async ngOnInit() {
-        // const result: Result<Friend[]> = await this.httpService.getFriends(this.userName);
-        // this.friends = result.value;
-
-        // -------- test ----------
-        for (let i = 0; i < 30; i++) {
-            this.friends.push(
-                {
-                    friendName: 'nb' + i
-                });
-        }
+        const result: Result<Friend[]> = await this.httpService.getFriends(this.userName);
+        this.friends = result.value;
 
         this.friends.forEach(item => {
             this.choosed.set(item.friendName, false);
