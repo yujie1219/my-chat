@@ -30,4 +30,8 @@ export class ShareService {
         this.cookieService.set(REFRESH_TOKEN, token.refreshToken, expiresDate);
         this.cookieService.set(USER_NAME, userName, expiresDate);
     }
+
+    public isEmpty(obj: any): boolean {
+        return obj === undefined || obj === null || obj === '' || obj.length === 0;
+    }
 }

@@ -5,14 +5,15 @@ import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
 
 @Component({
-    selector: 'friend-label',
-    templateUrl: './friendLabel.component.html',
+    selector: 'comment-label',
+    templateUrl: './commentLabel.component.html',
     styles: [`
-        .container{
+        .friend-label-container{
             flex-flow: column wrap;
             overflow-y: auto;
             height: 100%;
             padding: 0px;
+            background-color:gainsboro;
         }
 
         label{

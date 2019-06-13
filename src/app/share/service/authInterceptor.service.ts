@@ -20,7 +20,8 @@ export class AuthInterceptor implements HttpInterceptor {
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        const isLoginOrRegister = req.url.indexOf('/user/login') !== -1 || req.url.indexOf('/user/register') !== -1;
+        const isLoginOrRegister = req.url.indexOf('/user/login') !== -1 ||
+            req.url.indexOf('/user/register') !== -1 || req.url.indexOf('/auth/accessToken') !== -1;
 
         if (isLoginOrRegister) {
             return next.handle(req);
@@ -34,7 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
                 const expiresDate = new Date();
                 expiresDate.setTime(expiresDate.getTime() + (5 * 60 * 1000));
-                if (new Date(accessTokenTime) < expiresDate) {
+                if (this.shareService.isEmpty(accessTokenTime) || new Date(accessTokenTime) < expiresDate) {
                     this.getAccessToken(userName, refreshToken);
                 }
                 // if (this.isProcessing) {
