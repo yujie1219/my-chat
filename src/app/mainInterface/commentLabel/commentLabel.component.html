@@ -1,0 +1,9 @@
+<div class="friend-label-container">
+    <ng-container *ngFor="let friend of friends">
+        <div id="friend{{friend.friendName}}" class="friend-label"
+            [style.background-color]="choosed[friend.friendName]?'darkgrey':'gainsboro'" (click)="click(friend)">
+            <label>{{friend.friendName}}</label>
+        </div>
+    </ng-container>
+    <span class="no-comments" *ngIf="friends.length===0"><--暂无会话，点此与好友展开会话</span>
+</div>

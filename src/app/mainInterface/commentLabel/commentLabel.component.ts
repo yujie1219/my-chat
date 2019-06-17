@@ -25,6 +25,7 @@ import { USER_NAME } from 'src/app/share/template/constant';
         .friend-label{
             height: 80px;
             border-top: 1px solid darkgrey;
+            cursor: pointer;
         }
 
         .friend-label:hover{
@@ -34,9 +35,15 @@ import { USER_NAME } from 'src/app/share/template/constant';
         .friend-label:last-child{
             border-bottom: 1px solid darkgrey;
         }
+
+        .no-comments{
+            margin-top: 283px;
+            display: block;
+            font-size: 20px;
+        }
     `]
 })
-export class FriendLabelComponent implements OnInit {
+export class CommentLabelComponent implements OnInit {
     public friends: Friend[] = [];
     public choosed = new Map<string, boolean>();
     private nowChoosed: Friend;
@@ -48,7 +55,9 @@ export class FriendLabelComponent implements OnInit {
 
     async ngOnInit() {
         const result: Result<Friend[]> = await this.httpService.getFriends(this.userName);
-        this.friends = result.value;
+        this.friends = result.value.filter(item => {
+            return item.hasComment;
+        });
 
         this.friends.forEach(item => {
             this.choosed.set(item.friendName, false);

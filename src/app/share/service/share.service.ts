@@ -4,6 +4,7 @@ import { ErrorModalComponent } from '../component/modal/errorModal.component';
 import { Token } from '../template/pojo';
 import { ACCESS_TOKEN, ACCESS_TOKEN_TIME, REFRESH_TOKEN, USER_NAME } from '../template/constant';
 import { CookieService } from 'ngx-cookie-service';
+import { AbstractControl, ValidatorFn } from '@angular/forms';
 
 @Injectable()
 export class ShareService {
@@ -33,5 +34,15 @@ export class ShareService {
 
     public isEmpty(obj: any): boolean {
         return obj === undefined || obj === null || obj === '' || obj.length === 0;
+    }
+
+    public isNullOrEmpty(): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: any } | null => {
+            const value: string = control.value;
+            if (!value || value.trim().length === 0) {
+                return { nullOrEmpty: true };
+            }
+            return null;
+        };
     }
 }

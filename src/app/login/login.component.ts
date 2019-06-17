@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormGroup, FormControl, ValidatorFn, AbstractControl } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import { HttpService } from '../share/service/http.service';
 import { Result, User, Token } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
@@ -11,8 +11,8 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
     public loginForm: FormGroup = new FormGroup({
-        userName: new FormControl('', this.isNullOrEmpty()),
-        password: new FormControl('', this.isNullOrEmpty())
+        userName: new FormControl('', this.shareService.isNullOrEmpty()),
+        password: new FormControl('', this.shareService.isNullOrEmpty())
     });
 
     public register = false;
@@ -58,15 +58,5 @@ export class LoginComponent {
 
     public focus(control: FormControl) {
         control.markAsUntouched();
-    }
-
-    private isNullOrEmpty(): ValidatorFn {
-        return (control: AbstractControl): { [key: string]: any } | null => {
-            const value: string = control.value;
-            if (!value || value.trim().length === 0) {
-                return { nullOrEmpty: true };
-            }
-            return null;
-        };
     }
 }

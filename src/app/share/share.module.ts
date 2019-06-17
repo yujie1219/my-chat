@@ -10,6 +10,7 @@ import { ErrorModalComponent } from './component/modal/errorModal.component';
 import { ShareService } from './service/share.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './service/authInterceptor.service';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 export const httpInterceptorProviders = [
     {
@@ -20,6 +21,8 @@ export const httpInterceptorProviders = [
 @NgModule({
     imports: [
         HttpClientModule,
+        ReactiveFormsModule,
+        FormsModule,
         CommonModule,
         DialogModule,
         ButtonModule,
@@ -30,7 +33,9 @@ export const httpInterceptorProviders = [
     ],
     exports: [
         CommonModule,
-        ButtonModule
+        ButtonModule,
+        ReactiveFormsModule,
+        FormsModule
     ],
     providers: [
         HttpService,

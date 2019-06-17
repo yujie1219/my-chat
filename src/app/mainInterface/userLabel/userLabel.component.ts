@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { CookieService } from 'ngx-cookie-service';
+import { USER_NAME } from 'src/app/share/template/constant';
 
 @Component({
     selector: 'user-label',
@@ -7,6 +9,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
         .user-label-container{
             background-color:darkslategrey;
             height: 100%;
+            text-align: center;
         }
 
         .menu-container{
@@ -22,18 +25,24 @@ import { Component, EventEmitter, Output } from '@angular/core';
         .fa{
             font-size: 70px;
         }
+
+        h2{
+            padding-top: 20px;
+        }
     `]
 })
 export class UserLabelComponent {
+    public userName: string;
     public buttonNames: string[] = [
-        'comments', 'user'
+        'comments', 'friends'
     ];
     public ngClassMap: Map<string, object> = new Map();
     private selectedMap: Map<string, boolean> = new Map();
     @Output()
     private menuChange = new EventEmitter<string>();
 
-    constructor() {
+    constructor(public cookieService: CookieService) {
+        this.userName = this.cookieService.get(USER_NAME);
         this.initMenu();
     }
 
