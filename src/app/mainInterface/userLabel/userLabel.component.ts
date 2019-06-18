@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
 
@@ -31,17 +31,27 @@ import { USER_NAME } from 'src/app/share/template/constant';
         }
     `]
 })
-export class UserLabelComponent {
+export class UserLabelComponent implements OnInit {
     public userName: string;
     public buttonNames: string[] = [
         'comments', 'friends'
     ];
     public ngClassMap: Map<string, object> = new Map();
+    @Input()
+    public selectedMenuChange: EventEmitter<string>;
     private selectedMap: Map<string, boolean> = new Map();
     @Output()
     private menuChange = new EventEmitter<string>();
 
     constructor(public cookieService: CookieService) {
+
+    }
+
+    ngOnInit() {
+        this.selectedMenuChange.subscribe(selectedMenu => {
+            this.itemSelected(selectedMenu);
+        });
+
         this.userName = this.cookieService.get(USER_NAME);
         this.initMenu();
     }

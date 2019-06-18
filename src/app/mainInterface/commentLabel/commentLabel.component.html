@@ -1,7 +1,7 @@
 <div class="friend-label-container">
     <ng-container *ngFor="let friend of friends">
         <div id="friend{{friend.friendName}}" class="friend-label"
-            [style.background-color]="choosed[friend.friendName]?'darkgrey':'gainsboro'" (click)="click(friend)">
+            [style.background-color]="choosed.get(friend.friendName)?'darkgrey':'gainsboro'" (click)="click(friend)">
             <label>{{friend.friendName}}</label>
         </div>
     </ng-container>

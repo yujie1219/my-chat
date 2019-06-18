@@ -1,9 +1,14 @@
 <div class="friend-label-container">
-    <div>
-        <label class="friend-categray">新的朋友</label>
-        <div class="friend-label" [style.background-color]="gainsboro" (click)="selectFriend('system-myChat-addNewFriend')">
-            <img src="../../../assets/img/new-friend.PNG" />
-            <label class="friend-name">新的朋友</label>
+    <ng-container *ngFor="let letter of firstletters">
+        <div>
+            <label class="friend-categray">{{letter}}</label>
+            <ng-container *ngFor="let friend of fl2FriendMap.get(letter)">
+                <div class="friend-label" [style.background-color]="choosed.get(friend.friendName)?'darkgrey':'gainsboro'"
+                    (click)="clickFriend(friend)" (dblclick)="dblclickFriend(friend)">
+                    <img src="../../../assets/img/new-friend.PNG" />
+                    <label class="friend-name">{{friend.friendName}}</label>
+                </div>
+            </ng-container>
         </div>
-    </div>
+    </ng-container>
 </div>

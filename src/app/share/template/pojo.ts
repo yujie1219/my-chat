@@ -19,6 +19,7 @@ export interface User {
 export interface Friend {
     friendName: string;
     ownerName: string;
+    verifyMess?: string;
     lastMessage?: Message;
     hasComment?: boolean;
     messages?: Message[];

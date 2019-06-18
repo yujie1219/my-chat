@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ShareService } from 'src/app/share/service/share.service';
+import { HttpService } from 'src/app/share/service/http.service';
+import { CookieService } from 'ngx-cookie-service';
+import { USER_NAME } from 'src/app/share/template/constant';
 
 @Component({
     selector: 'add-friend',
@@ -25,6 +28,10 @@ import { ShareService } from 'src/app/share/service/share.service';
                 </textarea>
             </div>
         </form>
+        <div style="text-align:center">
+            <button class="btn btn-primary btn-left" (click)="addFriend()" [disabled]="!addFriendForm.valid">添加</button>
+            <button class="btn btn-primary" (click)="reset()">重置</button>
+        </div>
     `,
     styles: [`
         .center-wrapper{
@@ -37,6 +44,11 @@ import { ShareService } from 'src/app/share/service/share.service';
             font-size: 0.8em;
             margin-bottom: 1rem;
         }
+
+        .btn-left{
+            margin-left: -150px;
+            margin-right: 30px;
+        }
     `]
 })
 export class AddFriendComponent {
@@ -44,16 +56,38 @@ export class AddFriendComponent {
         userName: new FormControl('', this.shareService.isNullOrEmpty()),
         verifyMess: new FormControl('')
     });
+    @Input()
+    public friendAdded: EventEmitter<boolean>;
+    private currentUserName = this.cookieService.get(USER_NAME);
 
     public get userName() {
         return this.addFriendForm.get('userName');
     }
 
-    constructor(private shareService: ShareService) {
+    constructor(private shareService: ShareService, private httpSerivce: HttpService, private cookieService: CookieService) {
 
     }
 
     public focus(control: FormControl) {
         control.markAsUntouched();
+    }
+
+    public async addFriend() {
+        try {
+            await this.httpSerivce.addFriend({
+                friendName: this.addFriendForm.get('userName').value,
+                ownerName: this.currentUserName,
+                verifyMess: this.addFriendForm.get('verifyMess').value
+            });
+
+            // 2019/6/18 这个通知之后应该放在后端通过websocket得到的通知里
+            this.friendAdded.emit(true);
+        } catch (e) {
+            this.shareService.openErrorModal('添加好友失败', e.error.errorMessage);
+        }
+    }
+
+    public reset() {
+        this.addFriendForm.reset();
     }
 }

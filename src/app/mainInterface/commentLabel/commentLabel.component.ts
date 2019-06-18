@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Friend, Result } from 'src/app/share/template/pojo';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
+import { ShareService } from 'src/app/share/service/share.service';
 
 @Component({
     selector: 'comment-label',
@@ -44,23 +45,32 @@ import { USER_NAME } from 'src/app/share/template/constant';
     `]
 })
 export class CommentLabelComponent implements OnInit {
+    @Input() oldSelectedComment: string;
     public friends: Friend[] = [];
     public choosed = new Map<string, boolean>();
     private nowChoosed: Friend;
     private userName: string;
 
-    constructor(private httpService: HttpService, private cookieService: CookieService) {
+    constructor(private httpService: HttpService, private cookieService: CookieService, private shareService: ShareService) {
         this.userName = this.cookieService.get(USER_NAME);
     }
 
     async ngOnInit() {
         const result: Result<Friend[]> = await this.httpService.getFriends(this.userName);
         this.friends = result.value.filter(item => {
+            if (!this.shareService.isEmpty(this.oldSelectedComment) && item.friendName === this.oldSelectedComment) {
+                item.hasComment = true;
+                this.nowChoosed = item;
+            }
             return item.hasComment;
         });
 
         this.friends.forEach(item => {
-            this.choosed.set(item.friendName, false);
+            if (!this.shareService.isEmpty(this.oldSelectedComment) && item.friendName === this.oldSelectedComment) {
+                this.choosed.set(item.friendName, true);
+            } else {
+                this.choosed.set(item.friendName, false);
+            }
         });
     }
 
@@ -69,9 +79,9 @@ export class CommentLabelComponent implements OnInit {
             if (this.nowChoosed === friend) {
                 return;
             }
-            this.choosed[this.nowChoosed.friendName] = false;
+            this.choosed.set(this.nowChoosed.friendName, false);
         }
-        this.choosed[friend.friendName] = true;
+        this.choosed.set(friend.friendName, true);
         this.nowChoosed = friend;
     }
 }
