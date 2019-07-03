@@ -1,6 +1,6 @@
 <div class="friend-label-container">
     <ng-container *ngFor="let letter of firstletters">
-        <div>
+        <div onselectstart="return false;">
             <label class="friend-categray">{{letter}}</label>
             <ng-container *ngFor="let friend of fl2FriendMap.get(letter)">
                 <div class="friend-label" [style.background-color]="choosed.get(friend.friendName)?'darkgrey':'gainsboro'"

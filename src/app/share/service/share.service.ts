@@ -1,10 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { ErrorModalComponent } from '../component/modal/errorModal.component';
-import { Token } from '../template/pojo';
+import { Token, FriendReponsePacket } from '../template/pojo';
 import { ACCESS_TOKEN, ACCESS_TOKEN_TIME, REFRESH_TOKEN, USER_NAME } from '../template/constant';
 import { CookieService } from 'ngx-cookie-service';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
+import { AddFriendModalComponent } from '../component/modal/addFriendModal.component';
 
 @Injectable()
 export class ShareService {
@@ -18,6 +19,17 @@ export class ShareService {
         if (errorTitle && errorTitle.trim().length > 0) {
             errorModalRef.content.errorTitle = errorTitle;
         }
+    }
+
+    public openAddFriendModal(name: string, verifyMess: string, isApprove: EventEmitter<FriendReponsePacket>) {
+        const errorModalRef = this.modalService.show(AddFriendModalComponent);
+        if (name && name.trim().length > 0) {
+            errorModalRef.content.name = name;
+        }
+        if (verifyMess && verifyMess.trim().length > 0) {
+            errorModalRef.content.verifyMess = verifyMess;
+        }
+        errorModalRef.content.isApprove = isApprove;
     }
 
     public saveToken(token: Token, userName: string) {

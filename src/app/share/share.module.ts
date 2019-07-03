@@ -11,6 +11,7 @@ import { ShareService } from './service/share.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './service/authInterceptor.service';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { AddFriendModalComponent } from './component/modal/addFriendModal.component';
 
 export const httpInterceptorProviders = [
     {
@@ -29,7 +30,8 @@ export const httpInterceptorProviders = [
         ModalModule.forRoot()
     ],
     declarations: [
-        ErrorModalComponent
+        ErrorModalComponent,
+        AddFriendModalComponent
     ],
     exports: [
         CommonModule,
@@ -44,7 +46,8 @@ export const httpInterceptorProviders = [
         httpInterceptorProviders
     ],
     entryComponents: [
-        ErrorModalComponent
+        ErrorModalComponent,
+        AddFriendModalComponent
     ]
 })
 export class ShareModule {

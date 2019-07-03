@@ -8,7 +8,7 @@ import { USER_NAME } from 'src/app/share/template/constant';
 @Component({
     selector: 'add-friend',
     template: `
-        <form class="center-wrapper" [formGroup]="addFriendForm">
+        <form class="center-wrapper" [formGroup]="addFriendForm" autocomplete="off">
             <div class="form-group row"
                 [style.margin-bottom]="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)?'0':'1rem'">
                 <label class="col-md-2" for="userName">用户名</label>
@@ -56,8 +56,6 @@ export class AddFriendComponent {
         userName: new FormControl('', this.shareService.isNullOrEmpty()),
         verifyMess: new FormControl('')
     });
-    @Input()
-    public friendAdded: EventEmitter<boolean>;
     private currentUserName = this.cookieService.get(USER_NAME);
 
     public get userName() {
@@ -79,9 +77,6 @@ export class AddFriendComponent {
                 ownerName: this.currentUserName,
                 verifyMess: this.addFriendForm.get('verifyMess').value
             });
-
-            // 2019/6/18 这个通知之后应该放在后端通过websocket得到的通知里
-            this.friendAdded.emit(true);
         } catch (e) {
             this.shareService.openErrorModal('添加好友失败', e.error.errorMessage);
         }
