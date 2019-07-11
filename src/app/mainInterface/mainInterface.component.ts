@@ -30,7 +30,7 @@ export class MainInterfaceComponent implements OnDestroy {
 
     public newFriendConstant = NEW_FRIEND;
 
-    public friendAdded = new EventEmitter<boolean>();
+    public friendAdded = new EventEmitter<FriendReponsePacket>();
     public selectedMenuChange = new EventEmitter<string>();
 
     private webSocket: WebSocket;
@@ -83,9 +83,7 @@ export class MainInterfaceComponent implements OnDestroy {
                     break;
                 case FRIEND_RESPONSE:
                     const friendReponsePacket = packet as FriendReponsePacket;
-                    if (friendReponsePacket.approved) {
-                        this.friendAdded.emit(true);
-                    }
+                    this.friendAdded.emit(friendReponsePacket);
                     break;
             }
         };

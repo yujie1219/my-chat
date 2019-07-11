@@ -1,8 +1,9 @@
 import { Component, Output, EventEmitter, OnInit, Input } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
-import { Result, Friend } from 'src/app/share/template/pojo';
+import { Result, Friend, FriendReponsePacket } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME, NEW_FRIEND } from 'src/app/share/template/constant';
+import { ShareService } from 'src/app/share/service/share.service';
 
 @Component({
     selector: 'friend-label',
@@ -48,7 +49,7 @@ import { USER_NAME, NEW_FRIEND } from 'src/app/share/template/constant';
 export class FriendLabelComponent implements OnInit {
     @Input() oldSelectedFriend: string;
     @Input()
-    public friendAdded: EventEmitter<boolean>;
+    public friendAdded: EventEmitter<FriendReponsePacket>;
     @Output()
     public selectedFriend = new EventEmitter<string>();
     @Output()
@@ -60,13 +61,20 @@ export class FriendLabelComponent implements OnInit {
     private userName = this.cookieService.get(USER_NAME);
     private isSingleClick = true;
 
-    constructor(private httpService: HttpService, private cookieService: CookieService) {
+    constructor(private httpService: HttpService, private cookieService: CookieService, private shareService: ShareService) {
 
     }
 
     async ngOnInit() {
-        this.friendAdded.subscribe(item => {
-            this.refreshFriends();
+        this.friendAdded.subscribe(friendReponsePacket => {
+            if (friendReponsePacket.approved) {
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.fromUserName + '成功',
+                    friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方同意了你的好友请求！');
+                this.refreshFriends();
+            } else {
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.fromUserName + '失败',
+                    friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方拒绝了你的好友请求！');
+            }
         });
         this.refreshFriends();
     }
