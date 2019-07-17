@@ -1,9 +1,10 @@
-import { Component, Output, EventEmitter, OnInit, Input } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, Input, OnDestroy } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
 import { Result, Friend, FriendReponsePacket } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME, NEW_FRIEND } from 'src/app/share/template/constant';
 import { ShareService } from 'src/app/share/service/share.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'friend-label',
@@ -46,7 +47,7 @@ import { ShareService } from 'src/app/share/service/share.service';
         }
     `]
 })
-export class FriendLabelComponent implements OnInit {
+export class FriendLabelComponent implements OnInit, OnDestroy {
     @Input() oldSelectedFriend: string;
     @Input()
     public friendAdded: EventEmitter<FriendReponsePacket>;
@@ -60,13 +61,14 @@ export class FriendLabelComponent implements OnInit {
     private nowChoosed: Friend;
     private userName = this.cookieService.get(USER_NAME);
     private isSingleClick = true;
+    private friendAddedSubscription: Subscription;
 
     constructor(private httpService: HttpService, private cookieService: CookieService, private shareService: ShareService) {
 
     }
 
     async ngOnInit() {
-        this.friendAdded.subscribe(friendReponsePacket => {
+        this.friendAddedSubscription = this.friendAdded.subscribe(friendReponsePacket => {
             if (friendReponsePacket.approved) {
                 this.shareService.openErrorModal('添加好友' + friendReponsePacket.fromUserName + '成功',
                     friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方同意了你的好友请求！');
@@ -77,6 +79,12 @@ export class FriendLabelComponent implements OnInit {
             }
         });
         this.refreshFriends();
+    }
+
+    ngOnDestroy() {
+        if (this.friendAddedSubscription) {
+            this.friendAddedSubscription.unsubscribe();
+        }
     }
 
     public clickFriend(friend: Friend) {

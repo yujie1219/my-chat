@@ -3,6 +3,7 @@ import { NEW_FRIEND, USER_NAME, FRIEND_REQUEST, FRIEND_RESPONSE } from 'src/app/
 import { CookieService } from 'ngx-cookie-service';
 import { FriendReponsePacket, FriendRequestPacket } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     template: `
@@ -11,7 +12,9 @@ import { ShareService } from '../share/service/share.service';
             <user-label (menuChange)="this.selectedMenu=$event;" [selectedMenuChange]="selectedMenuChange"></user-label>
         </div>
         <div style="width:20%; height:100%; display:inline-block; vertical-align: top;">
-            <comment-label *ngIf="this.selectedMenu === 'comments'" [oldSelectedComment]="this.selectedComment"></comment-label>
+            <comment-label *ngIf="this.selectedMenu === 'comments'"
+                [oldSelectedComment]="this.selectedComment"
+                (selectedComment)="this.selectedComment=$event;"></comment-label>
             <friend-label *ngIf="this.selectedMenu === 'friends'"
                 (selectedFriend)="this.selectedFriend=$event;"
                 (selectedComment)="this.selectedComment=$event;this.selectedMenuChange.emit('comments')"
@@ -19,6 +22,8 @@ import { ShareService } from '../share/service/share.service';
         </div>
         <div style="width:70%; height:100%; display:inline-block; vertical-align: top;">
             <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"></add-friend>
+            <chat-interface *ngIf="this.selectedMenu === 'comments' && this.selectedComment !== ''"
+                [selectedFriendName]="selectedComment"></chat-interface>
         </div>
     </div>
     `
@@ -35,6 +40,7 @@ export class MainInterfaceComponent implements OnDestroy {
 
     private webSocket: WebSocket;
     private isApprove = new EventEmitter<FriendReponsePacket>();
+    private isApproveSubscription: Subscription;
 
     constructor(private cookieService: CookieService, private shareService: ShareService) {
         this.approveListener();
@@ -44,6 +50,9 @@ export class MainInterfaceComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.webSocket.close();
+        if (this.isApproveSubscription) {
+            this.isApproveSubscription.unsubscribe();
+        }
     }
 
     private tryGetUserName(): string {
@@ -94,7 +103,7 @@ export class MainInterfaceComponent implements OnDestroy {
     }
 
     private approveListener() {
-        this.isApprove.subscribe(response => {
+        this.isApproveSubscription = this.isApprove.subscribe(response => {
             this.webSocket.send(JSON.stringify(response));
         });
     }

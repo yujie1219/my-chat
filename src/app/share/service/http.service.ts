@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { User, Result, Token, Friend } from '../template/pojo';
+import { User, Result, Token, Friend, Message } from '../template/pojo';
 
 @Injectable()
 export class HttpService {
@@ -39,5 +39,15 @@ export class HttpService {
 
     public addFriend(firend: Friend): Promise<Result<Friend>> {
         return this.http.post<Result<Friend>>(this.baseUrl + '/user/friend', firend).toPromise();
+    }
+
+    public queryChatRecord(userName: string, friendName: string) {
+        const option = {
+            params: {
+                ownerName: userName,
+                friendName
+            }
+        };
+        return this.http.get<Result<Message[]>>(this.baseUrl + '/user/messages', option).toPromise();
     }
 }

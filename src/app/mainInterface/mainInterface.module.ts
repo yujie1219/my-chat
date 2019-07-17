@@ -5,6 +5,7 @@ import { ShareModule } from '../share/share.module';
 import { UserLabelComponent } from './userLabel/userLabel.component';
 import { FriendLabelComponent } from './friendLabel/friendLabel.component';
 import { AddFriendComponent } from './addFriend/addFriend.component';
+import { ChatInterfaceComponent } from './chatInterface/chatInterface.component';
 
 @NgModule({
     declarations: [
@@ -12,7 +13,8 @@ import { AddFriendComponent } from './addFriend/addFriend.component';
         CommentLabelComponent,
         FriendLabelComponent,
         UserLabelComponent,
-        AddFriendComponent
+        AddFriendComponent,
+        ChatInterfaceComponent
     ],
     imports: [
         ShareModule

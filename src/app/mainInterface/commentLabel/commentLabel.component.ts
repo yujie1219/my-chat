@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Friend, Result } from 'src/app/share/template/pojo';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -50,6 +50,8 @@ export class CommentLabelComponent implements OnInit {
     public choosed = new Map<string, boolean>();
     private nowChoosed: Friend;
     private userName: string;
+    @Output()
+    public selectedComment = new EventEmitter<string>();
 
     constructor(private httpService: HttpService, private cookieService: CookieService, private shareService: ShareService) {
         this.userName = this.cookieService.get(USER_NAME);
@@ -83,5 +85,6 @@ export class CommentLabelComponent implements OnInit {
         }
         this.choosed.set(friend.friendName, true);
         this.nowChoosed = friend;
+        this.selectedComment.emit(friend.friendName);
     }
 }

@@ -29,7 +29,7 @@ export interface Friend {
 
 export interface Message {
     messageId: string;
-    formUserName: string;
+    fromUserName: string;
     toFriendName: string;
     content: string;
     createDate: string;

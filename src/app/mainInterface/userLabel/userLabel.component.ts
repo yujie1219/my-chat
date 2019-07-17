@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'user-label',
@@ -31,7 +32,7 @@ import { USER_NAME } from 'src/app/share/template/constant';
         }
     `]
 })
-export class UserLabelComponent implements OnInit {
+export class UserLabelComponent implements OnInit, OnDestroy {
     public userName: string;
     public buttonNames: string[] = [
         'comments', 'friends'
@@ -42,18 +43,25 @@ export class UserLabelComponent implements OnInit {
     private selectedMap: Map<string, boolean> = new Map();
     @Output()
     private menuChange = new EventEmitter<string>();
+    private selectedMenuChangeSubscription: Subscription;
 
     constructor(public cookieService: CookieService) {
 
     }
 
     ngOnInit() {
-        this.selectedMenuChange.subscribe(selectedMenu => {
+        this.selectedMenuChangeSubscription = this.selectedMenuChange.subscribe(selectedMenu => {
             this.itemSelected(selectedMenu);
         });
 
         this.userName = this.cookieService.get(USER_NAME);
         this.initMenu();
+    }
+
+    ngOnDestroy() {
+        if (this.selectedMenuChangeSubscription) {
+            this.selectedMenuChangeSubscription.unsubscribe();
+        }
     }
 
     public itemSelected(itemName: string) {
