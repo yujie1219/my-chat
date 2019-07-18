@@ -12,8 +12,8 @@ import { USER_NAME } from '../../template/constant';
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-        <div class="modal-body">
-            <p *ngIf="verifyMess!=undefined && verifyMess.length>0">验证信息:{{verifyMess}}</p>
+        <div class="modal-body" *ngIf="verifyMess!=undefined && verifyMess.length>0">
+            <p>验证信息:{{verifyMess}}</p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-default" (click)="confirm()">确认</button>

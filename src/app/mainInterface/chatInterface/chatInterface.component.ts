@@ -8,12 +8,14 @@ import { USER_NAME } from 'src/app/share/template/constant';
     selector: 'chat-interface',
     template: `
         <div style="height:70%; overflow-y: auto; padding-top: 20px; padding-bottom: 20px;" #chatContainer>
-        <!--
+            <!--
             <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
             <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
             -->
         </div>
-        <div style="height:30%; background-color:black"></div>
+        <div style="height:30%; border-top: 1px solid darkgrey;">
+            <chat-input></chat-input>
+        </div>
     `,
     styles: [`
         .owner-message {
@@ -21,9 +23,9 @@ import { USER_NAME } from 'src/app/share/template/constant';
             padding: 10px;
             background-color: yellowgreen;
             margin-right: 20px;
-            margin-bottom: 5px;
             border-radius: 0.5em;
             width: fit-content;
+            max-width: 80%;
         }
 
         .owner-message-title {
@@ -36,9 +38,9 @@ import { USER_NAME } from 'src/app/share/template/constant';
             padding: 10px;
             background-color: lightgray;
             margin-left: 20px;
-            margin-bottom: 5px;
             border-radius: 0.5em;
             width: fit-content;
+            max-width: 80%;
         }
 
         .friend-message-title {
@@ -69,18 +71,26 @@ export class ChatInterfaceComponent implements OnInit {
 
     async queryRecord() {
         const result: Result<Message[]> = await this.httpService.queryChatRecord(this.userName, this.selectedFriendName);
+        // field createDate need to render later
         let messages = result.value;
         // ----------test----------------
         messages = this.addValueForTest();
         // ----------test----------------
+        this.showMessages(messages);
+    }
+
+    private showMessages(messages: Message[]) {
+
         // smaple :
         //    <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
         //    <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
+        let beforeUser = null;
         messages.forEach(message => {
             const messageDivContainer = this.renderer.createElement('div');
             const messageDiv = this.renderer.createElement('div');
             const messageTitleSpan = this.renderer.createElement('span');
-            this.renderer.appendChild(messageTitleSpan, this.renderer.createText(message.fromUserName));
+            this.renderer.appendChild(messageTitleSpan, this.renderer.createText(message.fromUserName + '  '));
+            this.renderer.appendChild(messageTitleSpan, this.renderer.createText(message.createDate));
             if (message.fromUserName === this.userName) {
                 this.renderer.addClass(messageDiv, 'owner-message');
                 this.renderer.addClass(messageTitleSpan, 'owner-message-title');
@@ -88,6 +98,14 @@ export class ChatInterfaceComponent implements OnInit {
                 this.renderer.addClass(messageDiv, 'friend-message');
                 this.renderer.addClass(messageTitleSpan, 'friend-message-title');
             }
+            if (beforeUser) {
+                if (beforeUser !== message.fromUserName) {
+                    // this.renderer.setStyle(messageDivContainer, 'margin-top', '10px');
+                } else {
+                    this.renderer.setStyle(messageDivContainer, 'margin-top', '5px');
+                }
+            }
+            beforeUser = message.fromUserName;
             this.renderer.appendChild(messageDiv, messageTitleSpan);
             this.renderer.appendChild(messageDiv, this.renderer.createElement('br'));
             const messageSpan = this.renderer.createElement('span');
@@ -97,7 +115,6 @@ export class ChatInterfaceComponent implements OnInit {
             this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
 
             if (message.fromUserName === this.userName) {
-                console.log(messageDiv.clientHeight);
                 const height = messageDiv.clientHeight;
                 this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
                 this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
@@ -124,17 +141,24 @@ export class ChatInterfaceComponent implements OnInit {
             createDate: '2019/7/17 15:58'
         });
         messages.push({
-            messageId: '1',
+            messageId: '3',
             fromUserName: this.selectedFriendName,
             toFriendName: this.userName,
             content: 'Where are you?',
             createDate: '2019/7/17 15:59'
         });
         messages.push({
-            messageId: '2',
+            messageId: '4',
             fromUserName: this.userName,
             toFriendName: this.selectedFriendName,
             content: 'Company is my house!',
+            createDate: '2019/7/17 15:59'
+        });
+        messages.push({
+            messageId: '6',
+            fromUserName: this.userName,
+            toFriendName: this.selectedFriendName,
+            content: '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊',
             createDate: '2019/7/17 15:59'
         });
         return messages;

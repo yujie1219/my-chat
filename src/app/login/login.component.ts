@@ -31,6 +31,12 @@ export class LoginComponent {
 
     }
 
+    public formEnter($event) {
+        if ($event.keyCode === 13) {
+            this.login();
+        }
+    }
+
     public async login() {
         let result: Result<Token> = null;
         const user: User = {

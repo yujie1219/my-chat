@@ -1,22 +1,18 @@
-<div class="center-container">
+<div class="center-container" (keyup)="formEnter($event)">
     <span class="login-title">MyChat</span>
     <div class="login-form">
         <form class="center-wrapper" [formGroup]="loginForm">
             <div class="form-group">
                 <label for="userName">用户名</label>
-                <input type="text" class="form-control" id="userName" (focus)="focus(userName)" placeholder="请输入用户名"
-                    formControlName="userName">
-                <span *ngIf="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)"
-                    class="control-error">
+                <input type="text" class="form-control" id="userName" (focus)="focus(userName)" placeholder="请输入用户名" formControlName="userName">
+                <span *ngIf="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)" class="control-error">
                     用户名不能为空
                 </span>
             </div>
             <div class="form-group">
                 <label for="userPwd">密码</label>
-                <input type="password" class="form-control" id="userPwd" (focus)="focus(password)" placeholder="请输入密码"
-                    formControlName="password">
-                <span *ngIf="password.errors?.nullOrEmpty && (password.touched || password.dirty)"
-                    class="control-error">
+                <input type="password" class="form-control" id="userPwd" (focus)="focus(password)" placeholder="请输入密码" formControlName="password">
+                <span *ngIf="password.errors?.nullOrEmpty && (password.touched || password.dirty)" class="control-error">
                     密码不能为空
                 </span>
             </div>
@@ -26,7 +22,6 @@
                 <p-checkbox name="register" label="注册" [(ngModel)]="register" binary="true"></p-checkbox>
             </div>
         </div>
-        <button class="btn btn-primary" (click)="login()"
-            [disabled]="!loginForm.valid">{{!register?"已有账号，直接登录":"注册并登录"}}</button>
+        <button class="btn btn-primary" (click)="login()" [disabled]="!loginForm.valid">{{!register?"已有账号，直接登录 ":"注册并登录 "}}</button>
     </div>
 </div>
