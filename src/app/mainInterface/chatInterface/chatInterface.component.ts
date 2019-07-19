@@ -1,23 +1,34 @@
-import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContainerRef } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
 import { Message, Result } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
-import { USER_NAME } from 'src/app/share/template/constant';
+import { USER_NAME, CHAT_REMIND } from 'src/app/share/template/constant';
 
 @Component({
     selector: 'chat-interface',
     template: `
         <div style="height:70%; overflow-y: auto; padding-top: 20px; padding-bottom: 20px;" #chatContainer>
+            <p-progressSpinner #processSpinner hidden [style]="{width: '70px', height: '70px'}"></p-progressSpinner>
             <!--
             <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
             <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
             -->
         </div>
         <div style="height:30%; border-top: 1px solid darkgrey;">
-            <chat-input></chat-input>
+            <chat-input (sendMessage)="showNoActualSendMessage($event)"></chat-input>
         </div>
     `,
     styles: [`
+        .chat-remind {
+            border-radius: 1em;
+            background-color: lightgray;
+            padding: 10px;
+            margin: 0 auto;
+            display: block;
+            width: fit-content;
+            font-size: 0.7em;
+        }
+
         .owner-message {
             float: right;
             padding: 10px;
@@ -59,7 +70,10 @@ export class ChatInterfaceComponent implements OnInit {
     selectedFriendName: string;
     @ViewChild('chatContainer')
     chatContainer: ElementRef;
+    @ViewChild('processSpinner', { read: ViewContainerRef })
+    processSpinner: ViewContainerRef;
     userName: string;
+    beforeUser: string;
 
     constructor(private httpService: HttpService, private cookieService: CookieService, private renderer: Renderer2) {
         this.userName = this.cookieService.get(USER_NAME);
@@ -76,51 +90,77 @@ export class ChatInterfaceComponent implements OnInit {
         // ----------test----------------
         messages = this.addValueForTest();
         // ----------test----------------
-        this.showMessages(messages);
+        if (messages.length > 0) {
+            this.showMessages(messages);
+        } else {
+            this.showChatRemind();
+        }
+    }
+
+    public showNoActualSendMessage(noAcutalSendMessage: string) {
+        this.showOneMessage(noAcutalSendMessage, this.userName, new Date().toString(), false);
+    }
+
+    private showChatRemind() {
+        const chatRemindDiv = this.renderer.createElement('div');
+        const chatRemindSpan = this.renderer.createElement('span');
+        this.renderer.addClass(chatRemindSpan, 'chat-remind');
+        this.renderer.appendChild(chatRemindSpan, this.renderer.createText(CHAT_REMIND));
+        this.renderer.appendChild(chatRemindDiv, chatRemindSpan);
+        this.renderer.appendChild(this.chatContainer.nativeElement, chatRemindDiv);
     }
 
     private showMessages(messages: Message[]) {
-
-        // smaple :
-        //    <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
-        //    <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
-        let beforeUser = null;
         messages.forEach(message => {
-            const messageDivContainer = this.renderer.createElement('div');
-            const messageDiv = this.renderer.createElement('div');
-            const messageTitleSpan = this.renderer.createElement('span');
-            this.renderer.appendChild(messageTitleSpan, this.renderer.createText(message.fromUserName + '  '));
-            this.renderer.appendChild(messageTitleSpan, this.renderer.createText(message.createDate));
-            if (message.fromUserName === this.userName) {
-                this.renderer.addClass(messageDiv, 'owner-message');
-                this.renderer.addClass(messageTitleSpan, 'owner-message-title');
-            } else {
-                this.renderer.addClass(messageDiv, 'friend-message');
-                this.renderer.addClass(messageTitleSpan, 'friend-message-title');
-            }
-            if (beforeUser) {
-                if (beforeUser !== message.fromUserName) {
-                    // this.renderer.setStyle(messageDivContainer, 'margin-top', '10px');
-                } else {
-                    this.renderer.setStyle(messageDivContainer, 'margin-top', '5px');
-                }
-            }
-            beforeUser = message.fromUserName;
-            this.renderer.appendChild(messageDiv, messageTitleSpan);
-            this.renderer.appendChild(messageDiv, this.renderer.createElement('br'));
-            const messageSpan = this.renderer.createElement('span');
-            this.renderer.appendChild(messageSpan, this.renderer.createText(message.content));
-            this.renderer.appendChild(messageDiv, messageSpan);
-            this.renderer.appendChild(messageDivContainer, messageDiv);
-            this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
-
-            if (message.fromUserName === this.userName) {
-                const height = messageDiv.clientHeight;
-                this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
-                this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
-                this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
-            }
+            this.showOneMessage(message.content, message.fromUserName, message.createDate);
         });
+    }
+
+    // smaple :
+    //    <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
+    //    <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
+    private showOneMessage(message: string, messageOwner: string, createDate: string, actualSend: boolean = true) {
+        const messageDivContainer = this.renderer.createElement('div');
+        const messageDiv = this.renderer.createElement('div');
+        const messageTitleSpan = this.renderer.createElement('span');
+        this.renderer.appendChild(messageTitleSpan, this.renderer.createText(messageOwner + '  '));
+        this.renderer.appendChild(messageTitleSpan, this.renderer.createText(createDate));
+        if (messageOwner === this.userName) {
+            this.renderer.addClass(messageDiv, 'owner-message');
+            this.renderer.addClass(messageTitleSpan, 'owner-message-title');
+        } else {
+            this.renderer.addClass(messageDiv, 'friend-message');
+            this.renderer.addClass(messageTitleSpan, 'friend-message-title');
+        }
+        if (this.beforeUser) {
+            if (this.beforeUser !== messageOwner) {
+                // this.renderer.setStyle(messageDivContainer, 'margin-top', '10px');
+            } else {
+                this.renderer.setStyle(messageDivContainer, 'margin-top', '5px');
+            }
+        }
+        this.beforeUser = messageOwner;
+        this.renderer.appendChild(messageDiv, messageTitleSpan);
+        this.renderer.appendChild(messageDiv, this.renderer.createElement('br'));
+        const messageSpan = this.renderer.createElement('span');
+        this.renderer.appendChild(messageSpan, this.renderer.createText(message));
+        this.renderer.appendChild(messageDiv, messageSpan);
+        this.renderer.appendChild(messageDivContainer, messageDiv);
+        if (!actualSend) {
+            // 2019-7-19 不知道如何动态生成一个processSpinner的ViewContainerRef,暂时先使用这种笨办法
+            const clonePSpinner = this.processSpinner.element.nativeElement.cloneNode(true);
+            this.renderer.removeAttribute(clonePSpinner, 'hidden');
+            this.renderer.setStyle(clonePSpinner, 'float', 'right');
+            this.renderer.appendChild(messageDivContainer, clonePSpinner);
+        }
+        this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
+
+        if (messageOwner === this.userName) {
+            const height = messageDiv.clientHeight;
+            this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
+            this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
+            this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
+        }
     }
 
     private addValueForTest(): Message[] {
