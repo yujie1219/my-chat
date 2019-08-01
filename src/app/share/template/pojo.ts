@@ -28,11 +28,11 @@ export interface Friend {
 }
 
 export interface Message {
-    messageId: string;
+    messageId?: string;
     fromUserName: string;
     toFriendName: string;
     content: string;
-    createDate: string;
+    createDate?: string;
 }
 
 export class FriendRequestPacket {

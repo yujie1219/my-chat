@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContainerRef, EventEmitter } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
 import { Message, Result } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
@@ -68,6 +68,8 @@ import { USER_NAME, CHAT_REMIND } from 'src/app/share/template/constant';
 export class ChatInterfaceComponent implements OnInit {
     @Input()
     selectedFriendName: string;
+    @Input()
+    sendMessageListener: EventEmitter<Message>;
     @ViewChild('chatContainer')
     chatContainer: ElementRef;
     @ViewChild('processSpinner', { read: ViewContainerRef })
@@ -99,6 +101,13 @@ export class ChatInterfaceComponent implements OnInit {
 
     public showNoActualSendMessage(noAcutalSendMessage: string) {
         this.showOneMessage(noAcutalSendMessage, this.userName, new Date().toString(), false);
+
+        const message: Message = {
+            fromUserName: this.userName,
+            toFriendName: this.selectedFriendName,
+            content: noAcutalSendMessage
+        };
+        this.sendMessageListener.emit(message);
     }
 
     private showChatRemind() {
@@ -152,7 +161,6 @@ export class ChatInterfaceComponent implements OnInit {
         if (messageOwner === this.userName) {
             // 在实际生成前height为0，所以需要生成后获取高度重新生成一次
             const height = messageDiv.clientHeight;
-            console.log(messageSpan.clientHeight);
             this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
             this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
 
@@ -167,6 +175,8 @@ export class ChatInterfaceComponent implements OnInit {
             }
             this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
         }
+
+        this.chatContainer.nativeElement.scroll(0, this.chatContainer.nativeElement.scrollHeight);
     }
 
     private addValueForTest(): Message[] {

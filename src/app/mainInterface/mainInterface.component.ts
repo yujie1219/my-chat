@@ -4,6 +4,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { FriendReponsePacket, FriendRequestPacket } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
 import { Subscription } from 'rxjs';
+import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 
 @Component({
     template: `
@@ -23,7 +24,7 @@ import { Subscription } from 'rxjs';
         <div style="width:70%; height:100%; display:inline-block; vertical-align: top;">
             <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"></add-friend>
             <chat-interface *ngIf="this.selectedMenu === 'comments' && this.selectedComment !== ''"
-                [selectedFriendName]="selectedComment"></chat-interface>
+                [selectedFriendName]="selectedComment" [sendMessageListener]="sendMessage"></chat-interface>
         </div>
     </div>
     `
@@ -38,12 +39,16 @@ export class MainInterfaceComponent implements OnDestroy {
     public friendAdded = new EventEmitter<FriendReponsePacket>();
     public selectedMenuChange = new EventEmitter<string>();
 
+    public sendMessage = new EventEmitter<Message>();
+    private sendMessageSubscription: Subscription;
+
     private webSocket: WebSocket;
     private isApprove = new EventEmitter<FriendReponsePacket>();
     private isApproveSubscription: Subscription;
 
     constructor(private cookieService: CookieService, private shareService: ShareService) {
         this.approveListener();
+        this.sendMessageListener();
         const userName = this.tryGetUserName();
         this.webSocketListener(userName);
     }
@@ -52,6 +57,9 @@ export class MainInterfaceComponent implements OnDestroy {
         this.webSocket.close();
         if (this.isApproveSubscription) {
             this.isApproveSubscription.unsubscribe();
+        }
+        if (this.sendMessageSubscription) {
+            this.sendMessageSubscription.unsubscribe();
         }
     }
 
@@ -105,6 +113,13 @@ export class MainInterfaceComponent implements OnDestroy {
     private approveListener() {
         this.isApproveSubscription = this.isApprove.subscribe(response => {
             this.webSocket.send(JSON.stringify(response));
+        });
+    }
+
+    private sendMessageListener() {
+        this.sendMessageSubscription = this.sendMessage.subscribe((message: Message) => {
+            console.log(message);
+            this.webSocket.send(JSON.stringify(message));
         });
     }
 }

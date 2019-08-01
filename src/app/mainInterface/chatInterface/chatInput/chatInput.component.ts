@@ -23,8 +23,6 @@ export class ChatInputComponent {
         const newMessage = this.newMessage.trim();
         if (newMessage.length > 0) {
             this.sendMessageBroadCast.emit(newMessage);
-            // send to server by websocket
-
             this.newMessage = '';
         }
     }
