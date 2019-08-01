@@ -7,8 +7,8 @@ import { USER_NAME, CHAT_REMIND } from 'src/app/share/template/constant';
 @Component({
     selector: 'chat-interface',
     template: `
-        <div style="height:70%; overflow-y: auto; padding-top: 20px; padding-bottom: 20px;" #chatContainer>
-            <p-progressSpinner #processSpinner hidden [style]="{width: '70px', height: '70px'}"></p-progressSpinner>
+        <div style="height:70%; overflow-y: auto; overflow-x: hidden; padding-top: 20px; padding-bottom: 20px;" #chatContainer>
+            <p-progressSpinner #processSpinner hidden [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
             <!--
             <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
             <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
@@ -144,21 +144,27 @@ export class ChatInterfaceComponent implements OnInit {
         this.renderer.appendChild(messageDiv, this.renderer.createElement('br'));
         const messageSpan = this.renderer.createElement('span');
         this.renderer.appendChild(messageSpan, this.renderer.createText(message));
+        this.renderer.setStyle(messageSpan, 'word-break', 'break-all');
         this.renderer.appendChild(messageDiv, messageSpan);
         this.renderer.appendChild(messageDivContainer, messageDiv);
-        if (!actualSend) {
-            // 2019-7-19 不知道如何动态生成一个processSpinner的ViewContainerRef,暂时先使用这种笨办法
-            const clonePSpinner = this.processSpinner.element.nativeElement.cloneNode(true);
-            this.renderer.removeAttribute(clonePSpinner, 'hidden');
-            this.renderer.setStyle(clonePSpinner, 'float', 'right');
-            this.renderer.appendChild(messageDivContainer, clonePSpinner);
-        }
         this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
 
         if (messageOwner === this.userName) {
+            // 在实际生成前height为0，所以需要生成后获取高度重新生成一次
             const height = messageDiv.clientHeight;
+            console.log(messageSpan.clientHeight);
             this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
             this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
+
+            if (!actualSend) {
+                // 2019-7-19 不知道如何动态生成一个processSpinner的ViewContainerRef,暂时先使用这种笨办法
+                const clonePSpinner = this.processSpinner.element.nativeElement.cloneNode(true);
+                this.renderer.removeAttribute(clonePSpinner, 'hidden');
+                this.renderer.setStyle(clonePSpinner, 'float', 'right');
+                // cloneSpinner的height设置为50的时候实际高度是56
+                this.renderer.setStyle(clonePSpinner, 'padding-top', (height - 56) / 2 + 'px');
+                this.renderer.appendChild(messageDivContainer, clonePSpinner);
+            }
             this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
         }
     }

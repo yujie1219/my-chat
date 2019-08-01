@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponseBase } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { mergeMap, catchError } from 'rxjs/operators';
+import { mergeMap, catchError, tap } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
 import { ACCESS_TOKEN, USER_NAME, REFRESH_TOKEN, ACCESS_TOKEN_TIME } from '../template/constant';
 import { Router } from '@angular/router';
@@ -55,13 +55,14 @@ export class AuthInterceptor implements HttpInterceptor {
             setHeaders: { Authorization: accessToken, UserName: userName }
         });
         return next.handle(authReq).pipe(
-            mergeMap((event: any) => {
-                if (event instanceof HttpResponseBase && event.status === 401) {
+            tap((event: any) => {
+                return of(event);
+            }, (error: any) => {
+                if (error instanceof HttpResponseBase && error.status === 401) {
                     this.shareService.openErrorModal('请求失败!', '用户验证失败!');
                     this.router.navigate(['/login']);
                 }
-                return of(event);
-            }),
+            })
         );
     }
 
