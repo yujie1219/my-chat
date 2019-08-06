@@ -1,10 +1,9 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { NEW_FRIEND, USER_NAME, FRIEND_REQUEST, FRIEND_RESPONSE } from 'src/app/share/template/constant';
+import { NEW_FRIEND, USER_NAME, FRIEND_REQUEST, FRIEND_RESPONSE, MESSAGE_REQUEST } from 'src/app/share/template/constant';
 import { CookieService } from 'ngx-cookie-service';
-import { FriendReponsePacket, FriendRequestPacket } from '../share/template/pojo';
+import { FriendReponsePacket, FriendRequestPacket, MessageRequestPacket, Message } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
 import { Subscription } from 'rxjs';
-import { Message } from '@angular/compiler/src/i18n/i18n_ast';
 
 @Component({
     template: `
@@ -24,7 +23,8 @@ import { Message } from '@angular/compiler/src/i18n/i18n_ast';
         <div style="width:70%; height:100%; display:inline-block; vertical-align: top;">
             <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"></add-friend>
             <chat-interface *ngIf="this.selectedMenu === 'comments' && this.selectedComment !== ''"
-                [selectedFriendName]="selectedComment" [sendMessageListener]="sendMessage"></chat-interface>
+                [selectedFriendName]="selectedComment" [sendMessageListener]="sendMessage"
+                [getMessageListener]="getMessage"></chat-interface>
         </div>
     </div>
     `
@@ -41,6 +41,8 @@ export class MainInterfaceComponent implements OnDestroy {
 
     public sendMessage = new EventEmitter<Message>();
     private sendMessageSubscription: Subscription;
+
+    public getMessage = new EventEmitter<Message>();
 
     private webSocket: WebSocket;
     private isApprove = new EventEmitter<FriendReponsePacket>();
@@ -102,6 +104,15 @@ export class MainInterfaceComponent implements OnDestroy {
                     const friendReponsePacket = packet as FriendReponsePacket;
                     this.friendAdded.emit(friendReponsePacket);
                     break;
+                case MESSAGE_REQUEST:
+                    const messageRequestPacket = packet as MessageRequestPacket;
+                    if (this.selectedComment === messageRequestPacket.fromUserName) {
+                        this.getMessage.emit(messageRequestPacket.message);
+                    } else {
+                        // 在comment标签上增加一个未读标记(显示条数)
+                        // 同时也可以在标签下方空白处显示最新内容
+                    }
+                    break;
             }
         };
 
@@ -118,8 +129,11 @@ export class MainInterfaceComponent implements OnDestroy {
 
     private sendMessageListener() {
         this.sendMessageSubscription = this.sendMessage.subscribe((message: Message) => {
-            console.log(message);
-            this.webSocket.send(JSON.stringify(message));
+            const messageRequestPacket = new MessageRequestPacket();
+            messageRequestPacket.fromUserName = message.fromUserName;
+            messageRequestPacket.toUserName = message.toFriendName;
+            messageRequestPacket.message = message;
+            this.webSocket.send(JSON.stringify(messageRequestPacket));
         });
     }
 }

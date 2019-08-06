@@ -1,8 +1,10 @@
-import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContainerRef, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContainerRef, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
 import { Message, Result } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
-import { USER_NAME, CHAT_REMIND } from 'src/app/share/template/constant';
+import { USER_NAME, CHAT_REMIND, TODAY } from 'src/app/share/template/constant';
+import { Subscription } from 'rxjs';
+import { v1 as uuid } from 'uuid';
 
 @Component({
     selector: 'chat-interface',
@@ -65,11 +67,14 @@ import { USER_NAME, CHAT_REMIND } from 'src/app/share/template/constant';
         }
     `]
 })
-export class ChatInterfaceComponent implements OnInit {
+export class ChatInterfaceComponent implements OnInit, OnDestroy {
     @Input()
     selectedFriendName: string;
     @Input()
     sendMessageListener: EventEmitter<Message>;
+    @Input()
+    getMessageListener: EventEmitter<Message>;
+    getMessageSubscription: Subscription;
     @ViewChild('chatContainer')
     chatContainer: ElementRef;
     @ViewChild('processSpinner', { read: ViewContainerRef })
@@ -82,15 +87,22 @@ export class ChatInterfaceComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.getMessageHandler();
         this.queryRecord();
+    }
+
+    ngOnDestroy() {
+        if (this.getMessageSubscription) {
+            this.getMessageSubscription.unsubscribe();
+        }
     }
 
     async queryRecord() {
         const result: Result<Message[]> = await this.httpService.queryChatRecord(this.userName, this.selectedFriendName);
         // field createDate need to render later
-        let messages = result.value;
+        const messages = result.value;
         // ----------test----------------
-        messages = this.addValueForTest();
+        // messages = this.addValueForTest();
         // ----------test----------------
         if (messages.length > 0) {
             this.showMessages(messages);
@@ -100,14 +112,22 @@ export class ChatInterfaceComponent implements OnInit {
     }
 
     public showNoActualSendMessage(noAcutalSendMessage: string) {
-        this.showOneMessage(noAcutalSendMessage, this.userName, new Date().toString(), false);
-
+        const messageID = uuid();
         const message: Message = {
+            messageId: messageID,
             fromUserName: this.userName,
             toFriendName: this.selectedFriendName,
             content: noAcutalSendMessage
         };
+        this.showOneMessage(messageID, noAcutalSendMessage, this.userName, new Date().toString(), false);
+
         this.sendMessageListener.emit(message);
+    }
+
+    private getMessageHandler() {
+        this.getMessageSubscription = this.getMessageListener.subscribe((message: Message) => {
+            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate, true);
+        });
     }
 
     private showChatRemind() {
@@ -121,19 +141,20 @@ export class ChatInterfaceComponent implements OnInit {
 
     private showMessages(messages: Message[]) {
         messages.forEach(message => {
-            this.showOneMessage(message.content, message.fromUserName, message.createDate);
+            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate);
         });
     }
 
     // smaple :
     //    <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
     //    <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
-    private showOneMessage(message: string, messageOwner: string, createDate: string, actualSend: boolean = true) {
+    private showOneMessage(messageId: string, message: string, messageOwner: string, createDate: string, actualSend: boolean = true) {
         const messageDivContainer = this.renderer.createElement('div');
+        this.renderer.setAttribute(messageDivContainer, 'messageId', messageId);
         const messageDiv = this.renderer.createElement('div');
         const messageTitleSpan = this.renderer.createElement('span');
         this.renderer.appendChild(messageTitleSpan, this.renderer.createText(messageOwner + '  '));
-        this.renderer.appendChild(messageTitleSpan, this.renderer.createText(createDate));
+        this.renderer.appendChild(messageTitleSpan, this.renderer.createText(this.renderTime(createDate)));
         if (messageOwner === this.userName) {
             this.renderer.addClass(messageDiv, 'owner-message');
             this.renderer.addClass(messageTitleSpan, 'owner-message-title');
@@ -177,6 +198,16 @@ export class ChatInterfaceComponent implements OnInit {
         }
 
         this.chatContainer.nativeElement.scroll(0, this.chatContainer.nativeElement.scrollHeight);
+    }
+
+    private renderTime(createDate: string): string {
+        const createTime = new Date(createDate);
+        const now = new Date();
+        if (createTime.toLocaleDateString() === now.toLocaleDateString()) {
+            return TODAY + ' ' + createTime.toLocaleTimeString();
+        } else {
+            return createTime.toLocaleString();
+        }
     }
 
     private addValueForTest(): Message[] {
