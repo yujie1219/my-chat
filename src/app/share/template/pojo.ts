@@ -32,6 +32,7 @@ export interface Message {
     fromUserName: string;
     toFriendName: string;
     content: string;
+    messageStatus: number;
     createDate?: string;
 }
 

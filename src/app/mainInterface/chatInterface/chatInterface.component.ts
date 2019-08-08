@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContainerRef, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
-import { Message, Result } from 'src/app/share/template/pojo';
+import { Message, Result, MessageResponsePacket } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
-import { USER_NAME, CHAT_REMIND, TODAY } from 'src/app/share/template/constant';
+import { USER_NAME, CHAT_REMIND, TODAY, MESSAGE_PENDING, MESSAGE_SUCCEED } from 'src/app/share/template/constant';
 import { Subscription } from 'rxjs';
 import { v1 as uuid } from 'uuid';
 
@@ -70,17 +70,26 @@ import { v1 as uuid } from 'uuid';
 export class ChatInterfaceComponent implements OnInit, OnDestroy {
     @Input()
     selectedFriendName: string;
+
     @Input()
     sendMessageListener: EventEmitter<Message>;
+
     @Input()
     getMessageListener: EventEmitter<Message>;
     getMessageSubscription: Subscription;
+
+    @Input()
+    getMessageResponseListener: EventEmitter<MessageResponsePacket>;
+    getMessageRespSubscription: Subscription;
+
     @ViewChild('chatContainer')
     chatContainer: ElementRef;
     @ViewChild('processSpinner', { read: ViewContainerRef })
     processSpinner: ViewContainerRef;
+
     userName: string;
     beforeUser: string;
+    messageIdToDomMap = new Map<string, { divContainer: any; spinner: any }>();
 
     constructor(private httpService: HttpService, private cookieService: CookieService, private renderer: Renderer2) {
         this.userName = this.cookieService.get(USER_NAME);
@@ -88,12 +97,16 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.getMessageHandler();
+        this.getMessageRespHandler();
         this.queryRecord();
     }
 
     ngOnDestroy() {
         if (this.getMessageSubscription) {
             this.getMessageSubscription.unsubscribe();
+        }
+        if (this.getMessageRespSubscription) {
+            this.getMessageRespSubscription.unsubscribe();
         }
     }
 
@@ -117,16 +130,30 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             messageId: messageID,
             fromUserName: this.userName,
             toFriendName: this.selectedFriendName,
-            content: noAcutalSendMessage
+            content: noAcutalSendMessage,
+            messageStatus: MESSAGE_PENDING
         };
-        this.showOneMessage(messageID, noAcutalSendMessage, this.userName, new Date().toString(), false);
+        this.showOneMessage(message.messageId, message.content, message.fromUserName, new Date().toString(), message.messageStatus);
 
         this.sendMessageListener.emit(message);
     }
 
     private getMessageHandler() {
         this.getMessageSubscription = this.getMessageListener.subscribe((message: Message) => {
-            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate, true);
+            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate, message.messageStatus);
+        });
+    }
+
+    private getMessageRespHandler() {
+        this.getMessageRespSubscription = this.getMessageResponseListener.subscribe((response: MessageResponsePacket) => {
+            const messageId = response.messageId;
+            const container = this.messageIdToDomMap.get(messageId);
+            const divContainer = container.divContainer;
+            const spinner = container.spinner;
+            if (container && divContainer && spinner) {
+                this.renderer.removeChild(divContainer, spinner);
+                this.messageIdToDomMap.delete(messageId);
+            }
         });
     }
 
@@ -141,16 +168,16 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
 
     private showMessages(messages: Message[]) {
         messages.forEach(message => {
-            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate);
+            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate, message.messageStatus);
         });
     }
 
     // smaple :
     //    <div><div class="friend-message"><span class="friend-message-title">Huchen</span><br/><span>Hello,Allen</span></div></div>
     //    <div><div class="owner-message"><span class="owner-message-title">Allen</span><br/><span>Hello,MyFriend</span></div></div>
-    private showOneMessage(messageId: string, message: string, messageOwner: string, createDate: string, actualSend: boolean = true) {
+    private showOneMessage(messageId: string, message: string, messageOwner: string, createDate: string, messageStatus: number) {
         const messageDivContainer = this.renderer.createElement('div');
-        this.renderer.setAttribute(messageDivContainer, 'messageId', messageId);
+        // this.renderer.setAttribute(messageDivContainer, 'messageId', messageId);
         const messageDiv = this.renderer.createElement('div');
         const messageTitleSpan = this.renderer.createElement('span');
         this.renderer.appendChild(messageTitleSpan, this.renderer.createText(messageOwner + '  '));
@@ -185,7 +212,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
             this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
 
-            if (!actualSend) {
+            if (messageStatus === MESSAGE_PENDING) {
                 // 2019-7-19 不知道如何动态生成一个processSpinner的ViewContainerRef,暂时先使用这种笨办法
                 const clonePSpinner = this.processSpinner.element.nativeElement.cloneNode(true);
                 this.renderer.removeAttribute(clonePSpinner, 'hidden');
@@ -193,6 +220,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
                 // cloneSpinner的height设置为50的时候实际高度是56
                 this.renderer.setStyle(clonePSpinner, 'padding-top', (height - 56) / 2 + 'px');
                 this.renderer.appendChild(messageDivContainer, clonePSpinner);
+                this.messageIdToDomMap.set(messageId, { divContainer: messageDivContainer, spinner: clonePSpinner });
             }
             this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
         }
@@ -218,6 +246,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             fromUserName: this.selectedFriendName,
             toFriendName: this.userName,
             content: 'Hello,Allen',
+            messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:58'
         });
         messages.push({
@@ -225,6 +254,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             fromUserName: this.userName,
             toFriendName: this.selectedFriendName,
             content: 'Hello,MyFriend',
+            messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:58'
         });
         messages.push({
@@ -232,6 +262,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             fromUserName: this.selectedFriendName,
             toFriendName: this.userName,
             content: 'Where are you?',
+            messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:59'
         });
         messages.push({
@@ -239,13 +270,16 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             fromUserName: this.userName,
             toFriendName: this.selectedFriendName,
             content: 'Company is my house!',
+            messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:59'
         });
         messages.push({
             messageId: '6',
             fromUserName: this.userName,
             toFriendName: this.selectedFriendName,
-            content: '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊',
+            content: '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊' +
+                '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊',
+            messageStatus: MESSAGE_PENDING,
             createDate: '2019/7/17 15:59'
         });
         return messages;

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnDestroy } from '@angular/core';
-import { NEW_FRIEND, USER_NAME, FRIEND_REQUEST, FRIEND_RESPONSE, MESSAGE_REQUEST } from 'src/app/share/template/constant';
+import { NEW_FRIEND, USER_NAME, FRIEND_REQUEST, FRIEND_RESPONSE, MESSAGE_REQUEST, MESSAGE_RESPONSE } from 'src/app/share/template/constant';
 import { CookieService } from 'ngx-cookie-service';
-import { FriendReponsePacket, FriendRequestPacket, MessageRequestPacket, Message } from '../share/template/pojo';
+import { FriendReponsePacket, FriendRequestPacket, MessageRequestPacket, Message, MessageResponsePacket } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
 import { Subscription } from 'rxjs';
 
@@ -24,7 +24,7 @@ import { Subscription } from 'rxjs';
             <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"></add-friend>
             <chat-interface *ngIf="this.selectedMenu === 'comments' && this.selectedComment !== ''"
                 [selectedFriendName]="selectedComment" [sendMessageListener]="sendMessage"
-                [getMessageListener]="getMessage"></chat-interface>
+                [getMessageListener]="getMessage" [getMessageResponseListener]="getMessageResponse"></chat-interface>
         </div>
     </div>
     `
@@ -43,6 +43,7 @@ export class MainInterfaceComponent implements OnDestroy {
     private sendMessageSubscription: Subscription;
 
     public getMessage = new EventEmitter<Message>();
+    public getMessageResponse = new EventEmitter<MessageResponsePacket>();
 
     private webSocket: WebSocket;
     private isApprove = new EventEmitter<FriendReponsePacket>();
@@ -106,13 +107,21 @@ export class MainInterfaceComponent implements OnDestroy {
                     break;
                 case MESSAGE_REQUEST:
                     const messageRequestPacket = packet as MessageRequestPacket;
+                    const message = messageRequestPacket.message;
                     if (this.selectedComment === messageRequestPacket.fromUserName) {
-                        this.getMessage.emit(messageRequestPacket.message);
+                        this.getMessage.emit(message);
                     } else {
                         // 在comment标签上增加一个未读标记(显示条数)
                         // 同时也可以在标签下方空白处显示最新内容
                     }
+                    const messageResponse = new MessageResponsePacket();
+                    messageResponse.messageId = message.messageId;
+                    messageResponse.sendSucceed = true;
+                    this.webSocket.send(JSON.stringify(messageResponse));
                     break;
+                case MESSAGE_RESPONSE:
+                    const messageResponsePacket = packet as MessageResponsePacket;
+                    this.getMessageResponse.emit(messageResponsePacket);
             }
         };
 
