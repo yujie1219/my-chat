@@ -15,23 +15,35 @@ export interface Token {
 
 export interface User {
     userName: string;
-    password: string;
+    password?: string;
+    registerDate?: string;
+    lastLogin?: string;
+    customInfo?: string;
 }
 
-export interface Friend {
+export interface FriendRelationship {
+    relationshipId: FriendRelationshipKey;
+    hasComment: boolean;
+    lastMessageId?: string;
+}
+
+export interface CommentRelationship {
     friendName: string;
     ownerName: string;
-    verifyMess?: string;
-    lastMessage?: Message;
-    hasComment?: boolean;
-    messages?: Message[];
+    hasComment: boolean;
+    lastMessageId?: string;
+}
+
+export interface FriendRelationshipKey {
+    senderName: string;
+    receiverName: string;
 }
 
 export interface Message {
     messageId: string;
-    fromUserName: string;
-    toFriendName: string;
+    senderUserName: string;
     content: string;
+    receiverUserName: string;
     messageStatus: number;
     createDate?: string;
 }
@@ -39,7 +51,8 @@ export interface Message {
 export class FriendRequestPacket {
     private version = 1;
     private command = FRIEND_REQUEST;
-    fromUserName: string;
+    senderUserName: string;
+    receiverUserName: string;
     verifyMess?: string;
 
     public getCommand() {
@@ -50,8 +63,8 @@ export class FriendRequestPacket {
 export class FriendReponsePacket {
     private version = 1;
     private command = FRIEND_RESPONSE;
-    fromUserName: string;
-    toUserName: string;
+    senderUserName: string;
+    receiverUserName: string;
     approved: boolean;
     responseMessage?: string;
 
@@ -63,8 +76,8 @@ export class FriendReponsePacket {
 export class MessageRequestPacket {
     private version = 1;
     private command = MESSAGE_REQUEST;
-    fromUserName: string;
-    toUserName: string;
+    senderUserName: string;
+    receiverUserName: string;
     message: Message;
 
     public getCommand() {

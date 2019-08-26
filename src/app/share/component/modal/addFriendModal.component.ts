@@ -34,8 +34,8 @@ export class AddFriendModalComponent {
 
     public confirm() {
         const friendReponsePacket = new FriendReponsePacket();
-        friendReponsePacket.fromUserName = this.userName;
-        friendReponsePacket.toUserName = this.name;
+        friendReponsePacket.senderUserName = this.userName;
+        friendReponsePacket.receiverUserName = this.name;
         friendReponsePacket.approved = true;
         this.isApprove.emit(friendReponsePacket);
         this.bsModalRef.hide();
@@ -43,8 +43,8 @@ export class AddFriendModalComponent {
 
     public refuse() {
         const friendReponsePacket = new FriendReponsePacket();
-        friendReponsePacket.fromUserName = this.userName;
-        friendReponsePacket.toUserName = this.name;
+        friendReponsePacket.senderUserName = this.userName;
+        friendReponsePacket.receiverUserName = this.name;
         friendReponsePacket.approved = false;
         this.isApprove.emit(friendReponsePacket);
         this.bsModalRef.hide();

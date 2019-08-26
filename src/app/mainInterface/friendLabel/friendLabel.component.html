@@ -3,10 +3,9 @@
         <div onselectstart="return false;">
             <label class="friend-categray">{{letter}}</label>
             <ng-container *ngFor="let friend of fl2FriendMap.get(letter)">
-                <div class="friend-label" [style.background-color]="choosed.get(friend.friendName)?'darkgrey':'gainsboro'"
-                    (click)="clickFriend(friend)" (dblclick)="dblclickFriend(friend)">
+                <div class="friend-label" [style.background-color]="choosed.get(friend.userName)?'darkgrey':'gainsboro'" (click)="clickFriend(friend)" (dblclick)="dblclickFriend(friend)">
                     <img src="../../../assets/img/new-friend.PNG" />
-                    <label class="friend-name">{{friend.friendName}}</label>
+                    <label class="friend-name">{{friend.userName}}</label>
                 </div>
             </ng-container>
         </div>

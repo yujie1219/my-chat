@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Friend, Result } from 'src/app/share/template/pojo';
+import { Result, FriendRelationship, CommentRelationship } from 'src/app/share/template/pojo';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
@@ -46,9 +46,9 @@ import { ShareService } from 'src/app/share/service/share.service';
 })
 export class CommentLabelComponent implements OnInit {
     @Input() oldSelectedComment: string;
-    public friends: Friend[] = [];
+    public friends: CommentRelationship[] = [];
     public choosed = new Map<string, boolean>();
-    private nowChoosed: Friend;
+    private nowChoosed: CommentRelationship;
     private userName: string;
     @Output()
     public selectedComment = new EventEmitter<string>();
@@ -58,13 +58,29 @@ export class CommentLabelComponent implements OnInit {
     }
 
     async ngOnInit() {
-        const result: Result<Friend[]> = await this.httpService.getFriends(this.userName);
+        const result: Result<FriendRelationship[]> = await this.httpService.getFriendRelationships(this.userName);
         this.friends = result.value.filter(item => {
-            if (!this.shareService.isEmpty(this.oldSelectedComment) && item.friendName === this.oldSelectedComment) {
+            if (!this.shareService.isEmpty(this.oldSelectedComment) &&
+                (item.relationshipId.receiverName === this.oldSelectedComment
+                    || item.relationshipId.senderName === this.oldSelectedComment)) {
                 item.hasComment = true;
-                this.nowChoosed = item;
+                this.nowChoosed = {
+                    friendName: item.relationshipId.receiverName === this.userName ?
+                        item.relationshipId.senderName : item.relationshipId.receiverName,
+                    ownerName: this.userName,
+                    hasComment: item.hasComment,
+                    lastMessageId: item.lastMessageId
+                };
             }
             return item.hasComment;
+        }).map(item => {
+            return {
+                friendName: item.relationshipId.receiverName === this.userName ?
+                    item.relationshipId.senderName : item.relationshipId.receiverName,
+                ownerName: this.userName,
+                hasComment: item.hasComment,
+                lastMessageId: item.lastMessageId
+            };
         });
 
         this.friends.forEach(item => {
@@ -76,7 +92,7 @@ export class CommentLabelComponent implements OnInit {
         });
     }
 
-    public click(friend: Friend) {
+    public click(friend: CommentRelationship) {
         if (this.nowChoosed) {
             if (this.nowChoosed === friend) {
                 return;

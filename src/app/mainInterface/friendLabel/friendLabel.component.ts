@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, OnInit, Input, OnDestroy } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
-import { Result, Friend, FriendReponsePacket } from 'src/app/share/template/pojo';
+import { Result, FriendReponsePacket, User } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME, NEW_FRIEND } from 'src/app/share/template/constant';
 import { ShareService } from 'src/app/share/service/share.service';
@@ -56,9 +56,9 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     @Output()
     public selectedComment = new EventEmitter<string>();
     public firstletters: string[] = [];
-    public fl2FriendMap = new Map<string, Friend[]>();
+    public fl2FriendMap = new Map<string, User[]>();
     public choosed = new Map<string, boolean>();
-    private nowChoosed: Friend;
+    private nowChoosed: User;
     private userName = this.cookieService.get(USER_NAME);
     private isSingleClick = true;
     private friendAddedSubscription: Subscription;
@@ -70,7 +70,7 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         this.friendAddedSubscription = this.friendAdded.subscribe(friendReponsePacket => {
             if (friendReponsePacket.approved) {
-                this.shareService.openErrorModal('添加好友' + friendReponsePacket.fromUserName + '成功',
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.sendUserName + '成功',
                     friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方同意了你的好友请求！');
                 this.refreshFriends();
             } else {
@@ -87,7 +87,7 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
         }
     }
 
-    public clickFriend(friend: Friend) {
+    public clickFriend(friend: User) {
         this.isSingleClick = true;
         setTimeout(() => {
             if (this.isSingleClick) {
@@ -96,40 +96,39 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
         }, 250);
     }
 
-    public dblclickFriend(friend: Friend) {
-        if (friend.friendName !== NEW_FRIEND) {
+    public dblclickFriend(friend: User) {
+        if (friend.userName !== NEW_FRIEND) {
             this.isSingleClick = false;
-            this.selectedComment.emit(friend.friendName);
+            this.selectedComment.emit(friend.userName);
         }
     }
 
-    private selectFriend(friend: Friend) {
+    private selectFriend(friend: User) {
         if (!friend) {
             friend = {
-                friendName: NEW_FRIEND,
-                ownerName: this.userName
+                userName: NEW_FRIEND
             };
         }
         if (this.nowChoosed) {
             if (this.nowChoosed === friend) {
                 return;
             }
-            this.choosed.set(this.nowChoosed.friendName, false);
+            this.choosed.set(this.nowChoosed.userName, false);
         }
-        this.choosed.set(friend.friendName, true);
+        this.choosed.set(friend.userName, true);
         this.nowChoosed = friend;
-        this.oldSelectedFriend = friend.friendName;
-        this.selectedFriend.emit(friend.friendName);
+        this.oldSelectedFriend = friend.userName;
+        this.selectedFriend.emit(friend.userName);
     }
 
     private async refreshFriends() {
         this.initVariant();
-        const result: Result<Friend[]> = await this.httpService.getFriends(this.userName);
+        const result: Result<User[]> = await this.httpService.getFriends(this.userName);
         this.addNewFriendRef();
 
         const sortResult = result.value.sort((a, b) => {
-            const aName = a.friendName.split('');
-            const bName = b.friendName.split('');
+            const aName = a.userName.split('');
+            const bName = b.userName.split('');
             for (let i = 0; ; i++) {
                 if (aName[i] > bName[i]) {
                     return 1;
@@ -150,8 +149,8 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
             }
         });
         sortResult.forEach(item => {
-            this.choosed.set(item.friendName, false);
-            const firstLetter = item.friendName.substring(0, 1);
+            this.choosed.set(item.userName, false);
+            const firstLetter = item.userName.substring(0, 1);
             if (!this.firstletters.includes(firstLetter)) {
                 this.firstletters.push(firstLetter);
             }
@@ -166,8 +165,7 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
         });
         if (this.oldSelectedFriend && this.choosed.get(this.oldSelectedFriend) !== undefined) {
             this.selectFriend({
-                friendName: this.oldSelectedFriend,
-                ownerName: this.userName
+                userName: this.oldSelectedFriend
             });
         }
     }
@@ -180,9 +178,8 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     }
 
     private addNewFriendRef() {
-        const newFriend = {
-            friendName: NEW_FRIEND,
-            ownerName: this.userName
+        const newFriend: User = {
+            userName: NEW_FRIEND
         };
         this.choosed.set(NEW_FRIEND, false);
         this.firstletters.push(NEW_FRIEND);

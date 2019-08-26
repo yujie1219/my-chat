@@ -99,7 +99,8 @@ export class MainInterfaceComponent implements OnDestroy {
             switch (packet.command) {
                 case FRIEND_REQUEST:
                     const friendRequestPacket = packet as FriendRequestPacket;
-                    this.shareService.openAddFriendModal(friendRequestPacket.fromUserName, friendRequestPacket.verifyMess, this.isApprove);
+                    // tslint:disable-next-line:max-line-length
+                    this.shareService.openAddFriendModal(friendRequestPacket.senderUserName, friendRequestPacket.verifyMess, this.isApprove);
                     break;
                 case FRIEND_RESPONSE:
                     const friendReponsePacket = packet as FriendReponsePacket;
@@ -108,7 +109,7 @@ export class MainInterfaceComponent implements OnDestroy {
                 case MESSAGE_REQUEST:
                     const messageRequestPacket = packet as MessageRequestPacket;
                     const message = messageRequestPacket.message;
-                    if (this.selectedComment === messageRequestPacket.fromUserName) {
+                    if (this.selectedComment === messageRequestPacket.senderUserName) {
                         this.getMessage.emit(message);
                     } else {
                         // 在comment标签上增加一个未读标记(显示条数)
@@ -139,8 +140,8 @@ export class MainInterfaceComponent implements OnDestroy {
     private sendMessageListener() {
         this.sendMessageSubscription = this.sendMessage.subscribe((message: Message) => {
             const messageRequestPacket = new MessageRequestPacket();
-            messageRequestPacket.fromUserName = message.fromUserName;
-            messageRequestPacket.toUserName = message.toFriendName;
+            messageRequestPacket.senderUserName = message.senderUserName;
+            messageRequestPacket.receiverUserName = message.receiverUserName;
             messageRequestPacket.message = message;
             this.webSocket.send(JSON.stringify(messageRequestPacket));
         });

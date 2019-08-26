@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { User, Result, Token, Friend, Message } from '../template/pojo';
+import { User, Result, Token, Message, FriendRelationship } from '../template/pojo';
 
 @Injectable()
 export class HttpService {
@@ -28,17 +28,22 @@ export class HttpService {
         return this.http.get<Result<Token>>(this.baseUrl + '/auth/accessToken', option).toPromise();
     }
 
-    public getFriends(userName: string): Promise<Result<Friend[]>> {
+    public getFriends(userName: string): Promise<Result<User[]>> {
         const option = {
             params: {
                 userName
             }
         };
-        return this.http.get<Result<Friend[]>>(this.baseUrl + '/user/friends', option).toPromise();
+        return this.http.get<Result<User[]>>(this.baseUrl + '/user/friends', option).toPromise();
     }
 
-    public addFriend(firend: Friend): Promise<Result<Friend>> {
-        return this.http.post<Result<Friend>>(this.baseUrl + '/user/friend', firend).toPromise();
+    public getFriendRelationships(userName: string): Promise<Result<FriendRelationship[]>> {
+        const option = {
+            params: {
+                userName
+            }
+        };
+        return this.http.get<Result<FriendRelationship  []>>(this.baseUrl + '/user/friendRelationships', option).toPromise();
     }
 
     public queryChatRecord(userName: string, friendName: string) {
