@@ -128,19 +128,19 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
         const messageID = uuid();
         const message: Message = {
             messageId: messageID,
-            fromUserName: this.userName,
-            toFriendName: this.selectedFriendName,
+            senderUserName: this.userName,
+            receiverUserName: this.selectedFriendName,
             content: noAcutalSendMessage,
             messageStatus: MESSAGE_PENDING
         };
-        this.showOneMessage(message.messageId, message.content, message.fromUserName, new Date().toString(), message.messageStatus);
+        this.showOneMessage(message.messageId, message.content, message.senderUserName, new Date().toString(), message.messageStatus);
 
         this.sendMessageListener.emit(message);
     }
 
     private getMessageHandler() {
         this.getMessageSubscription = this.getMessageListener.subscribe((message: Message) => {
-            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate, message.messageStatus);
+            this.showOneMessage(message.messageId, message.content, message.senderUserName, message.createDate, message.messageStatus);
         });
     }
 
@@ -168,7 +168,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
 
     private showMessages(messages: Message[]) {
         messages.forEach(message => {
-            this.showOneMessage(message.messageId, message.content, message.fromUserName, message.createDate, message.messageStatus);
+            this.showOneMessage(message.messageId, message.content, message.senderUserName, message.createDate, message.messageStatus);
         });
     }
 
@@ -243,40 +243,40 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
         this.selectedFriendName = 'Huchen';
         messages.push({
             messageId: '1',
-            fromUserName: this.selectedFriendName,
-            toFriendName: this.userName,
+            senderUserName: this.selectedFriendName,
+            receiverUserName: this.userName,
             content: 'Hello,Allen',
             messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:58'
         });
         messages.push({
             messageId: '2',
-            fromUserName: this.userName,
-            toFriendName: this.selectedFriendName,
+            senderUserName: this.userName,
+            receiverUserName: this.selectedFriendName,
             content: 'Hello,MyFriend',
             messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:58'
         });
         messages.push({
             messageId: '3',
-            fromUserName: this.selectedFriendName,
-            toFriendName: this.userName,
+            senderUserName: this.selectedFriendName,
+            receiverUserName: this.userName,
             content: 'Where are you?',
             messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:59'
         });
         messages.push({
             messageId: '4',
-            fromUserName: this.userName,
-            toFriendName: this.selectedFriendName,
+            senderUserName: this.userName,
+            receiverUserName: this.selectedFriendName,
             content: 'Company is my house!',
             messageStatus: MESSAGE_SUCCEED,
             createDate: '2019/7/17 15:59'
         });
         messages.push({
             messageId: '6',
-            fromUserName: this.userName,
-            toFriendName: this.selectedFriendName,
+            senderUserName: this.userName,
+            receiverUserName: this.selectedFriendName,
             content: '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊' +
                 '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊',
             messageStatus: MESSAGE_PENDING,

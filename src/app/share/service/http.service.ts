@@ -43,10 +43,10 @@ export class HttpService {
                 userName
             }
         };
-        return this.http.get<Result<FriendRelationship  []>>(this.baseUrl + '/user/friendRelationships', option).toPromise();
+        return this.http.get<Result<FriendRelationship[]>>(this.baseUrl + '/user/friendRelationships', option).toPromise();
     }
 
-    public queryChatRecord(userName: string, friendName: string) {
+    public queryChatRecord(userName: string, friendName: string): Promise<Result<Message[]>> {
         const option = {
             params: {
                 ownerName: userName,

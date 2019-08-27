@@ -21,7 +21,8 @@ import { Subscription } from 'rxjs';
                 [oldSelectedFriend]="selectedFriend" [friendAdded]="friendAdded"></friend-label>
         </div>
         <div style="width:70%; height:100%; display:inline-block; vertical-align: top;">
-            <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"></add-friend>
+            <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"
+                (sendAddFriendRequest)="sendAddFriendRequest($event);"></add-friend>
             <chat-interface *ngIf="this.selectedMenu === 'comments' && this.selectedComment !== ''"
                 [selectedFriendName]="selectedComment" [sendMessageListener]="sendMessage"
                 [getMessageListener]="getMessage" [getMessageResponseListener]="getMessageResponse"></chat-interface>
@@ -64,6 +65,10 @@ export class MainInterfaceComponent implements OnDestroy {
         if (this.sendMessageSubscription) {
             this.sendMessageSubscription.unsubscribe();
         }
+    }
+
+    public sendAddFriendRequest(request: FriendRequestPacket) {
+        this.webSocket.send(JSON.stringify(request));
     }
 
     private tryGetUserName(): string {

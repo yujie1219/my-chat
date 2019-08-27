@@ -22,7 +22,7 @@ export interface User {
 }
 
 export interface FriendRelationship {
-    relationshipId: FriendRelationshipKey;
+    relationshipId: FriendRelationshipPK;
     hasComment: boolean;
     lastMessageId?: string;
 }
@@ -34,7 +34,7 @@ export interface CommentRelationship {
     lastMessageId?: string;
 }
 
-export interface FriendRelationshipKey {
+export interface FriendRelationshipPK {
     senderName: string;
     receiverName: string;
 }

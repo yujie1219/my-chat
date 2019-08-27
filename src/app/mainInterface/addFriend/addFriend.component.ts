@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ShareService } from 'src/app/share/service/share.service';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
+import { FriendRequestPacket } from 'src/app/share/template/pojo';
 
 @Component({
     selector: 'add-friend',
@@ -52,6 +53,9 @@ import { USER_NAME } from 'src/app/share/template/constant';
     `]
 })
 export class AddFriendComponent {
+    @Output()
+    sendAddFriendRequest = new EventEmitter<FriendRequestPacket>();
+
     public addFriendForm: FormGroup = new FormGroup({
         userName: new FormControl('', this.shareService.isNullOrEmpty()),
         verifyMess: new FormControl('')
@@ -70,16 +74,12 @@ export class AddFriendComponent {
         control.markAsUntouched();
     }
 
-    public async addFriend() {
-        try {
-            await this.httpSerivce.addFriend({
-                friendName: this.addFriendForm.get('userName').value,
-                ownerName: this.currentUserName,
-                verifyMess: this.addFriendForm.get('verifyMess').value
-            });
-        } catch (e) {
-            this.shareService.openErrorModal('添加好友失败', e.error.errorMessage);
-        }
+    public addFriend() {
+        const request: FriendRequestPacket = new FriendRequestPacket();
+        request.senderUserName = this.currentUserName;
+        request.receiverUserName = this.addFriendForm.get('userName').value;
+        request.verifyMess = this.addFriendForm.get('verifyMess').value;
+        this.sendAddFriendRequest.emit(request);
     }
 
     public reset() {

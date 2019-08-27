@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponseBase } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { mergeMap, catchError, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
 import { ACCESS_TOKEN, USER_NAME, REFRESH_TOKEN, ACCESS_TOKEN_TIME } from '../template/constant';
 import { Router } from '@angular/router';
