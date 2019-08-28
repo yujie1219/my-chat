@@ -68,13 +68,13 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     }
 
     async ngOnInit() {
-        this.friendAddedSubscription = this.friendAdded.subscribe(friendReponsePacket => {
+        this.friendAddedSubscription = this.friendAdded.subscribe((friendReponsePacket: FriendReponsePacket) => {
             if (friendReponsePacket.approved) {
-                this.shareService.openErrorModal('添加好友' + friendReponsePacket.sendUserName + '成功',
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.senderUserName + '成功',
                     friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方同意了你的好友请求！');
                 this.refreshFriends();
             } else {
-                this.shareService.openErrorModal('添加好友' + friendReponsePacket.fromUserName + '失败',
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.senderUserName + '失败',
                     friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方拒绝了你的好友请求！');
             }
         });

@@ -2,7 +2,7 @@ import { Component, Input, OnInit, Renderer2, ViewChild, ElementRef, ViewContain
 import { HttpService } from 'src/app/share/service/http.service';
 import { Message, Result, MessageResponsePacket } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
-import { USER_NAME, CHAT_REMIND, TODAY, MESSAGE_PENDING, MESSAGE_SUCCEED } from 'src/app/share/template/constant';
+import { USER_NAME, CHAT_REMIND, TODAY, SENDING_PENDING, SENDING_SUCCEED, SENDING_FAILURE } from 'src/app/share/template/constant';
 import { Subscription } from 'rxjs';
 import { v1 as uuid } from 'uuid';
 
@@ -113,7 +113,9 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
     async queryRecord() {
         const result: Result<Message[]> = await this.httpService.queryChatRecord(this.userName, this.selectedFriendName);
         // field createDate need to render later
-        const messages = result.value;
+        const messages = result.value.filter((message: Message) => {
+            return message.messageStatus !== SENDING_FAILURE;
+        });
         // ----------test----------------
         // messages = this.addValueForTest();
         // ----------test----------------
@@ -131,7 +133,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             senderUserName: this.userName,
             receiverUserName: this.selectedFriendName,
             content: noAcutalSendMessage,
-            messageStatus: MESSAGE_PENDING
+            messageStatus: SENDING_PENDING
         };
         this.showOneMessage(message.messageId, message.content, message.senderUserName, new Date().toString(), message.messageStatus);
 
@@ -212,7 +214,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             this.renderer.removeChild(this.chatContainer.nativeElement, messageDivContainer);
             this.renderer.setStyle(messageDivContainer, 'height', height + 'px');
 
-            if (messageStatus === MESSAGE_PENDING) {
+            if (messageStatus === SENDING_PENDING) {
                 // 2019-7-19 不知道如何动态生成一个processSpinner的ViewContainerRef,暂时先使用这种笨办法
                 const clonePSpinner = this.processSpinner.element.nativeElement.cloneNode(true);
                 this.renderer.removeAttribute(clonePSpinner, 'hidden');
@@ -246,7 +248,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             senderUserName: this.selectedFriendName,
             receiverUserName: this.userName,
             content: 'Hello,Allen',
-            messageStatus: MESSAGE_SUCCEED,
+            messageStatus: SENDING_SUCCEED,
             createDate: '2019/7/17 15:58'
         });
         messages.push({
@@ -254,7 +256,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             senderUserName: this.userName,
             receiverUserName: this.selectedFriendName,
             content: 'Hello,MyFriend',
-            messageStatus: MESSAGE_SUCCEED,
+            messageStatus: SENDING_SUCCEED,
             createDate: '2019/7/17 15:58'
         });
         messages.push({
@@ -262,7 +264,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             senderUserName: this.selectedFriendName,
             receiverUserName: this.userName,
             content: 'Where are you?',
-            messageStatus: MESSAGE_SUCCEED,
+            messageStatus: SENDING_SUCCEED,
             createDate: '2019/7/17 15:59'
         });
         messages.push({
@@ -270,7 +272,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             senderUserName: this.userName,
             receiverUserName: this.selectedFriendName,
             content: 'Company is my house!',
-            messageStatus: MESSAGE_SUCCEED,
+            messageStatus: SENDING_SUCCEED,
             createDate: '2019/7/17 15:59'
         });
         messages.push({
@@ -279,7 +281,7 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             receiverUserName: this.selectedFriendName,
             content: '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊' +
                 '啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊',
-            messageStatus: MESSAGE_PENDING,
+            messageStatus: SENDING_PENDING,
             createDate: '2019/7/17 15:59'
         });
         return messages;

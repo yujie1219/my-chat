@@ -13,7 +13,7 @@ export const MESSAGE_REQUEST = 3;
 export const MESSAGE_RESPONSE = 4;
 
 // message status
-export const MESSAGE_PENDING = 1;
-export const MESSAGE_SUCCEED = 2;
-export const MESSAGE_FAILURE = 3;
+export const SENDING_PENDING = 1;
+export const SENDING_SUCCEED = 2;
+export const SENDING_FAILURE = 3;
 
