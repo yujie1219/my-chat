@@ -4,7 +4,7 @@ import { ShareService } from 'src/app/share/service/share.service';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
-import { FriendRequestPacket } from 'src/app/share/template/pojo';
+import { FriendRequestPacket, Result } from 'src/app/share/template/pojo';
 
 @Component({
     selector: 'add-friend',
@@ -74,12 +74,17 @@ export class AddFriendComponent {
         control.markAsUntouched();
     }
 
-    public addFriend() {
+    public async addFriend() {
         const request: FriendRequestPacket = new FriendRequestPacket();
         request.senderUserName = this.currentUserName;
         request.receiverUserName = this.addFriendForm.get('userName').value;
         request.verifyMess = this.addFriendForm.get('verifyMess').value;
-        this.sendAddFriendRequest.emit(request);
+        const result: Result<boolean> = await this.httpSerivce.friendRequestVerification(request.receiverUserName, request.senderUserName);
+        if (result.value) {
+            this.sendAddFriendRequest.emit(request);
+        } else {
+            this.shareService.openErrorModal('添加好友失败！', result.errorMessage);
+        }
     }
 
     public reset() {

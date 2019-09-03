@@ -1,7 +1,10 @@
 <div class="user-label-container">
     <h2>{{userName}}</h2>
-    <ng-container *ngFor="let buttonName of buttonNames">
-        <button class="menu-container" (click)="itemSelected(buttonName)"><span
+    <div style="height: 85%">
+        <ng-container *ngFor="let buttonName of buttonNames">
+            <button class="menu-container" (click)="itemSelected(buttonName)"><span
                 [ngClass]="this.ngClassMap.get(buttonName)"></span></button>
-    </ng-container>
+        </ng-container>
+    </div>
+    <button class="fa fa-sign-out" (click)="signOff()"></button>
 </div>

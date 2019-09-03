@@ -2,6 +2,8 @@ import { Component, EventEmitter, Output, Input, OnInit, OnDestroy } from '@angu
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
 import { Subscription } from 'rxjs';
+import { ShareService } from 'src/app/share/service/share.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'user-label',
@@ -30,6 +32,13 @@ import { Subscription } from 'rxjs';
         h2{
             padding-top: 20px;
         }
+
+        .fa-sign-out{
+            background: transparent;
+            border: none;
+            outline:none;
+            font-size: 50px;
+        }
     `]
 })
 export class UserLabelComponent implements OnInit, OnDestroy {
@@ -45,7 +54,7 @@ export class UserLabelComponent implements OnInit, OnDestroy {
     private menuChange = new EventEmitter<string>();
     private selectedMenuChangeSubscription: Subscription;
 
-    constructor(public cookieService: CookieService) {
+    constructor(public cookieService: CookieService, public shareService: ShareService, private router: Router) {
 
     }
 
@@ -62,6 +71,11 @@ export class UserLabelComponent implements OnInit, OnDestroy {
         if (this.selectedMenuChangeSubscription) {
             this.selectedMenuChangeSubscription.unsubscribe();
         }
+    }
+
+    public signOff() {
+        this.shareService.removeToken();
+        this.router.navigate(['../login']);
     }
 
     public itemSelected(itemName: string) {

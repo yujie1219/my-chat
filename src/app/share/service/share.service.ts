@@ -36,12 +36,18 @@ export class ShareService {
         const expiresDate = new Date();
         expiresDate.setTime(expiresDate.getTime() + (30 * 60 * 1000));
         this.cookieService.set(ACCESS_TOKEN, token.accessToken, expiresDate);
-        console.log(expiresDate.toString());
         this.cookieService.set(ACCESS_TOKEN_TIME, expiresDate.toString(), expiresDate);
 
         expiresDate.setTime(expiresDate.getTime() - (30 * 60 * 1000) + (24 * 60 * 60 * 1000));
         this.cookieService.set(REFRESH_TOKEN, token.refreshToken, expiresDate);
         this.cookieService.set(USER_NAME, userName, expiresDate);
+    }
+
+    public removeToken() {
+        this.cookieService.delete(ACCESS_TOKEN);
+        this.cookieService.delete(ACCESS_TOKEN_TIME);
+        this.cookieService.delete(REFRESH_TOKEN);
+        this.cookieService.delete(USER_NAME);
     }
 
     public isEmpty(obj: any): boolean {

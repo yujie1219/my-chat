@@ -46,6 +46,15 @@ export class HttpService {
         return this.http.get<Result<FriendRelationship[]>>(this.baseUrl + '/user/friendRelationships', option).toPromise();
     }
 
+    public friendRequestVerification(receiverName: string, senderName: string): Promise<Result<boolean>> {
+        const option = {
+            params: {
+                receiverName, senderName
+            }
+        };
+        return this.http.get<Result<boolean>>(this.baseUrl + '/user//friendRequest/verification', option).toPromise();
+    }
+
     public queryChatRecord(userName: string, friendName: string): Promise<Result<Message[]>> {
         const option = {
             params: {
