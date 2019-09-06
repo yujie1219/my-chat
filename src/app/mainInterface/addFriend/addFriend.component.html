@@ -1,0 +1,50 @@
+<form class="center-wrapper" [formGroup]="addFriendForm" autocomplete="off">
+    <div class="form-group row" [style.margin-bottom]="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)?'0':'1rem'">
+        <label class="col-md-2" for="userName">用户名</label>
+        <input type="text" class="form-control col-md-6" id="userName" (focus)="focus(userName)" placeholder="请输入用户名" formControlName="userName">
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <span *ngIf="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)" class="control-error">
+            用户名不能为空
+        </span>
+    </div>
+    <div class="form-group row">
+        <label class="col-md-2" for="verifyMess">验证信息</label>
+        <textarea rows="3" class="form-control col-md-6" id="verifyMess" formControlName="verifyMess">
+            </textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <span *ngIf="verifyMess.errors?.tooLong && (verifyMess.dirty)" class="control-error">
+            验证信息不能超过30个字符！
+        </span>
+    </div>
+</form>
+<div style="text-align:center">
+    <button class="btn btn-primary btn-left" (click)="addFriend()" [disabled]="!addFriendForm.valid">添加</button>
+    <button class="btn btn-primary" (click)="reset()">重置</button>
+</div>
+<div class="friend-requests-wrapper">
+    <div class="friend-requests-title" *ngIf="friendRequests.length > 0">好友请求</div>
+    <ng-container *ngFor="let request of friendRequests">
+        <div class="friend-request-wrapper row">
+            <div class="col-md-8">
+                <span>{{request.senderUserName}}</span><br/>
+                <span style="width: 70%;display: inline-block;">验证信息：{{request.verifyMess}}</span>
+            </div>
+            <div class="col-md-4" style="margin-top: 20px;">
+                <ng-container *ngIf="request.requestStatus == 1">
+                    <button class="btn btn-primary btn-left" (click)="approve(request)">同意</button>
+                    <button class="btn btn-primary" (click)="reject(request)">拒绝</button>
+                </ng-container>
+                <ng-container *ngIf="request.requestStatus == 2">
+                    <span>已接受</span>
+                </ng-container>
+                <ng-container *ngIf="request.requestStatus == 3">
+                    <span>已拒绝</span>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+</div>

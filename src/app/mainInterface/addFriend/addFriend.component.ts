@@ -1,73 +1,43 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { ShareService } from 'src/app/share/service/share.service';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME } from 'src/app/share/template/constant';
-import { FriendRequestPacket, Result } from 'src/app/share/template/pojo';
+import { FriendRequestPacket, Result, FriendRequest, FriendReponsePacket } from 'src/app/share/template/pojo';
 
 @Component({
     selector: 'add-friend',
-    template: `
-        <form class="center-wrapper" [formGroup]="addFriendForm" autocomplete="off">
-            <div class="form-group row"
-                [style.margin-bottom]="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)?'0':'1rem'">
-                <label class="col-md-2" for="userName">用户名</label>
-                <input type="text" class="form-control col-md-6" id="userName" (focus)="focus(userName)" placeholder="请输入用户名"
-                    formControlName="userName">
-            </div>
-            <div class="row">
-                <div class="col-md-2"></div>
-                <span *ngIf="userName.errors?.nullOrEmpty && (userName.touched || userName.dirty)"
-                    class="control-error">
-                    用户名不能为空
-                </span>
-            </div>
-            <div class="form-group row">
-                <label class="col-md-2" for="verifyMess">验证信息</label>
-                <textarea rows="3" class="form-control col-md-6" id="verifyMess" formControlName="verifyMess">
-                </textarea>
-            </div>
-        </form>
-        <div style="text-align:center">
-            <button class="btn btn-primary btn-left" (click)="addFriend()" [disabled]="!addFriendForm.valid">添加</button>
-            <button class="btn btn-primary" (click)="reset()">重置</button>
-        </div>
-    `,
-    styles: [`
-        .center-wrapper{
-            width: 80%;
-            margin: 50px auto 0 auto;
-        }
-
-        .control-error{
-            color: red;
-            font-size: 0.8em;
-            margin-bottom: 1rem;
-        }
-
-        .btn-left{
-            margin-left: -150px;
-            margin-right: 30px;
-        }
-    `]
+    templateUrl: './addFriend.component.html',
+    styleUrls: ['./addFriend.component.css']
 })
-export class AddFriendComponent {
+export class AddFriendComponent implements OnInit {
     @Output()
     sendAddFriendRequest = new EventEmitter<FriendRequestPacket>();
+    @Input() isApprove: EventEmitter<FriendReponsePacket>;
 
     public addFriendForm: FormGroup = new FormGroup({
         userName: new FormControl('', this.shareService.isNullOrEmpty()),
-        verifyMess: new FormControl('')
+        verifyMess: new FormControl('', this.shareService.verifyMessageLength())
     });
+    public friendRequests: FriendRequest[] = [];
     private currentUserName = this.cookieService.get(USER_NAME);
 
     public get userName() {
         return this.addFriendForm.get('userName');
     }
 
+    public get verifyMess() {
+        return this.addFriendForm.get('verifyMess');
+    }
+
     constructor(private shareService: ShareService, private httpSerivce: HttpService, private cookieService: CookieService) {
 
+    }
+
+    async ngOnInit() {
+        const result: Result<FriendRequest[]> = await this.httpSerivce.getFriendRequests(this.currentUserName);
+        this.friendRequests = result.value;
     }
 
     public focus(control: FormControl) {
@@ -89,5 +59,25 @@ export class AddFriendComponent {
 
     public reset() {
         this.addFriendForm.reset();
+    }
+
+    public approve(request: FriendRequest) {
+        const friendReponsePacket = new FriendReponsePacket();
+        friendReponsePacket.requestId = request.friendRequestId;
+        friendReponsePacket.senderUserName = this.currentUserName;
+        friendReponsePacket.receiverUserName = request.senderUserName;
+        friendReponsePacket.approved = true;
+        this.isApprove.emit(friendReponsePacket);
+        // after send the response , I should update the interface of the request
+    }
+
+    public reject(request: FriendRequest) {
+        const friendReponsePacket = new FriendReponsePacket();
+        friendReponsePacket.requestId = request.friendRequestId;
+        friendReponsePacket.senderUserName = this.currentUserName;
+        friendReponsePacket.receiverUserName = request.senderUserName;
+        friendReponsePacket.approved = false;
+        this.isApprove.emit(friendReponsePacket);
+        // after send the response , I should update the interface of the request
     }
 }

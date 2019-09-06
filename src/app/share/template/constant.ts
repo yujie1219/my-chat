@@ -17,3 +17,8 @@ export const SENDING_PENDING = 1;
 export const SENDING_SUCCEED = 2;
 export const SENDING_FAILURE = 3;
 
+// friend request status
+export const WAIT_REPLY = 1;
+export const REPLY_APPROVE = 2;
+export const REPLY_REJECT = 3;
+

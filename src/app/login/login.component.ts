@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { HttpService } from '../share/service/http.service';
-import { Result, User, Token } from '../share/template/pojo';
+import { Result, UserAccount, Token } from '../share/template/pojo';
 import { ShareService } from '../share/service/share.service';
 import { Router } from '@angular/router';
 
@@ -39,7 +39,7 @@ export class LoginComponent {
 
     public async login() {
         let result: Result<Token> = null;
-        const user: User = {
+        const user: UserAccount = {
             userName: this.userName.value,
             password: this.password.value
         };

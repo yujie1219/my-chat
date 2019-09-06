@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, OnInit, Input, OnDestroy } from '@angular/core';
 import { HttpService } from 'src/app/share/service/http.service';
-import { Result, FriendReponsePacket, User } from 'src/app/share/template/pojo';
+import { Result, FriendReponsePacket, UserAccount } from 'src/app/share/template/pojo';
 import { CookieService } from 'ngx-cookie-service';
 import { USER_NAME, NEW_FRIEND } from 'src/app/share/template/constant';
 import { ShareService } from 'src/app/share/service/share.service';
@@ -56,9 +56,9 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     @Output()
     public selectedComment = new EventEmitter<string>();
     public firstletters: string[] = [];
-    public fl2FriendMap = new Map<string, User[]>();
+    public fl2FriendMap = new Map<string, UserAccount[]>();
     public choosed = new Map<string, boolean>();
-    private nowChoosed: User;
+    private nowChoosed: UserAccount;
     private userName = this.cookieService.get(USER_NAME);
     private isSingleClick = true;
     private friendAddedSubscription: Subscription;
@@ -70,12 +70,10 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         this.friendAddedSubscription = this.friendAdded.subscribe((friendReponsePacket: FriendReponsePacket) => {
             if (friendReponsePacket.approved) {
-                this.shareService.openErrorModal('添加好友' + friendReponsePacket.senderUserName + '成功',
-                    friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方同意了你的好友请求！');
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.senderUserName + '成功', '对方同意了你的好友请求！');
                 this.refreshFriends();
             } else {
-                this.shareService.openErrorModal('添加好友' + friendReponsePacket.senderUserName + '失败',
-                    friendReponsePacket.responseMessage ? friendReponsePacket.responseMessage : '对方拒绝了你的好友请求！');
+                this.shareService.openErrorModal('添加好友' + friendReponsePacket.senderUserName + '失败', '对方拒绝了你的好友请求！');
             }
         });
         this.refreshFriends();
@@ -87,7 +85,7 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
         }
     }
 
-    public clickFriend(friend: User) {
+    public clickFriend(friend: UserAccount) {
         this.isSingleClick = true;
         setTimeout(() => {
             if (this.isSingleClick) {
@@ -96,14 +94,14 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
         }, 250);
     }
 
-    public dblclickFriend(friend: User) {
+    public dblclickFriend(friend: UserAccount) {
         if (friend.userName !== NEW_FRIEND) {
             this.isSingleClick = false;
             this.selectedComment.emit(friend.userName);
         }
     }
 
-    private selectFriend(friend: User) {
+    private selectFriend(friend: UserAccount) {
         if (!friend) {
             friend = {
                 userName: NEW_FRIEND
@@ -123,7 +121,7 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
 
     private async refreshFriends() {
         this.initVariant();
-        const result: Result<User[]> = await this.httpService.getFriends(this.userName);
+        const result: Result<UserAccount[]> = await this.httpService.getFriends(this.userName);
         this.addNewFriendRef();
 
         const sortResult = result.value.sort((a, b) => {
@@ -178,7 +176,7 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     }
 
     private addNewFriendRef() {
-        const newFriend: User = {
+        const newFriend: UserAccount = {
             userName: NEW_FRIEND
         };
         this.choosed.set(NEW_FRIEND, false);

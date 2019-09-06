@@ -22,7 +22,7 @@ import { Subscription } from 'rxjs';
         </div>
         <div style="width:70%; height:100%; display:inline-block; vertical-align: top;">
             <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"
-                (sendAddFriendRequest)="sendAddFriendRequest($event);"></add-friend>
+                (sendAddFriendRequest)="sendAddFriendRequest($event);" [isApprove]="isApprove"></add-friend>
             <chat-interface *ngIf="this.selectedMenu === 'comments' && this.selectedComment !== ''"
                 [selectedFriendName]="selectedComment" [sendMessageListener]="sendMessage"
                 [getMessageListener]="getMessage" [getMessageResponseListener]="getMessageResponse"></chat-interface>

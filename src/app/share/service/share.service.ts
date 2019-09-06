@@ -63,4 +63,14 @@ export class ShareService {
             return null;
         };
     }
+
+    public verifyMessageLength(): ValidatorFn {
+        return (control: AbstractControl): { [key: string]: any } | null => {
+            const value: string = control.value;
+            if (value && value.trim().length > 30) {
+                return { tooLong: true };
+            }
+            return null;
+        };
+    }
 }

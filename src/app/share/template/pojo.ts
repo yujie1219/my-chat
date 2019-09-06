@@ -13,12 +13,20 @@ export interface Token {
     userName: string;
 }
 
-export interface User {
+export interface UserAccount {
     userName: string;
     password?: string;
-    registerDate?: string;
     lastLogin?: string;
     customInfo?: string;
+    friendRequests?: FriendRequest[];
+}
+
+export interface FriendRequest {
+    friendRequestId: string;
+    senderUserName: string;
+    receiverUserName: string;
+    verifyMess: string;
+    requestStatus: number;
 }
 
 export interface FriendRelationship {
@@ -66,7 +74,7 @@ export class FriendReponsePacket {
     senderUserName: string;
     receiverUserName: string;
     approved: boolean;
-    responseMessage?: string;
+    requestId: string;
 
     public getCommand() {
         return this.command;
