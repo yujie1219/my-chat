@@ -3,7 +3,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { ShareService } from 'src/app/share/service/share.service';
 import { HttpService } from 'src/app/share/service/http.service';
 import { CookieService } from 'ngx-cookie-service';
-import { USER_NAME } from 'src/app/share/template/constant';
+import { USER_NAME, REPLY_APPROVE, REPLY_REJECT } from 'src/app/share/template/constant';
 import { FriendRequestPacket, Result, FriendRequest, FriendReponsePacket } from 'src/app/share/template/pojo';
 
 @Component({
@@ -69,6 +69,7 @@ export class AddFriendComponent implements OnInit {
         friendReponsePacket.approved = true;
         this.isApprove.emit(friendReponsePacket);
         // after send the response , I should update the interface of the request
+        request.requestStatus = REPLY_APPROVE;
     }
 
     public reject(request: FriendRequest) {
@@ -79,5 +80,6 @@ export class AddFriendComponent implements OnInit {
         friendReponsePacket.approved = false;
         this.isApprove.emit(friendReponsePacket);
         // after send the response , I should update the interface of the request
+        request.requestStatus = REPLY_REJECT;
     }
 }

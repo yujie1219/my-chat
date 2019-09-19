@@ -16,6 +16,7 @@ export class LoginComponent {
     });
 
     public register = false;
+    public showMaskLayer = false;
 
     public get userName() {
         return this.loginForm.get('userName');
@@ -44,11 +45,13 @@ export class LoginComponent {
             password: this.password.value
         };
         try {
+            this.showMaskLayer = true;
             if (this.register) {
                 result = await this.httpService.registerApi(user);
             } else {
                 result = await this.httpService.loginApi(user);
             }
+            this.showMaskLayer = false;
             if (result && result.value) {
                 const token: Token = result.value;
                 this.shareService.saveToken(token, user.userName);
@@ -58,6 +61,7 @@ export class LoginComponent {
                 this.shareService.openErrorModal('登录失败', result.errorMessage);
             }
         } catch (e) {
+            this.showMaskLayer = false;
             this.shareService.openErrorModal('登录失败', e.error.errorMessage);
         }
     }

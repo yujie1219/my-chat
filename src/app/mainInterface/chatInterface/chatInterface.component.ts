@@ -227,7 +227,11 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy {
             this.renderer.appendChild(this.chatContainer.nativeElement, messageDivContainer);
         }
 
-        this.chatContainer.nativeElement.scroll(0, this.chatContainer.nativeElement.scrollHeight);
+        this.chatContainer.nativeElement.scroll({
+            left: 0,
+            top: this.chatContainer.nativeElement.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 
     private renderTime(createDate: string): string {

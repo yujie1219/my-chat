@@ -12,6 +12,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './service/authInterceptor.service';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AddFriendModalComponent } from './component/modal/addFriendModal.component';
+import { MaskLayerComponent } from './component/maskLayer/maskLayer.component';
 
 export const httpInterceptorProviders = [
     {
@@ -31,13 +32,15 @@ export const httpInterceptorProviders = [
     ],
     declarations: [
         ErrorModalComponent,
-        AddFriendModalComponent
+        AddFriendModalComponent,
+        MaskLayerComponent
     ],
     exports: [
         CommonModule,
         ButtonModule,
         ReactiveFormsModule,
-        FormsModule
+        FormsModule,
+        MaskLayerComponent
     ],
     providers: [
         HttpService,
@@ -47,7 +50,8 @@ export const httpInterceptorProviders = [
     ],
     entryComponents: [
         ErrorModalComponent,
-        AddFriendModalComponent
+        AddFriendModalComponent,
+        MaskLayerComponent
     ]
 })
 export class ShareModule {

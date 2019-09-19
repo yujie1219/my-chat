@@ -32,6 +32,7 @@ export interface FriendRequest {
 export interface FriendRelationship {
     relationshipId: FriendRelationshipPK;
     hasComment: boolean;
+    newToSender: boolean;
     lastMessageId?: string;
 }
 
