@@ -1,3 +1,5 @@
+<mask-layer [show]="showMaskLayer"></mask-layer>
+
 <div class="center-container" (keyup)="formEnter($event)">
     <span class="login-title">MyChat</span>
     <div class="login-form">
@@ -25,5 +27,3 @@
         <button class="btn btn-primary" (click)="login()" [disabled]="!loginForm.valid">{{!register?"已有账号，直接登录 ":"注册并登录 "}}</button>
     </div>
 </div>
-
-<mask-layer [show]="showMaskLayer"></mask-layer>

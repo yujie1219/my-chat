@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
     template: `
     <div style="height:100%;">
         <div style="width:10%; height:100%; display:inline-block; vertical-align: top;">
-            <user-label (menuChange)="this.selectedMenu=$event;" [selectedMenuChange]="selectedMenuChange"></user-label>
+            <user-label (menuChange)="menuChange($event)" [selectedMenuChange]="selectedMenuChange"></user-label>
         </div>
         <div style="width:20%; height:100%; display:inline-block; vertical-align: top;">
             <comment-label *ngIf="this.selectedMenu === 'comments'"
@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
             <friend-label *ngIf="this.selectedMenu === 'friends'"
                 (selectedFriend)="this.selectedFriend=$event;"
                 (selectedComment)="this.selectedComment=$event;this.selectedMenuChange.emit('comments')"
-                [oldSelectedFriend]="selectedFriend" [friendAdded]="friendAdded"></friend-label>
+                [friendAdded]="friendAdded"></friend-label>
         </div>
         <div style="width:70%; height:100%; display:inline-block; vertical-align: top;">
             <add-friend *ngIf="this.selectedMenu === 'friends' && this.selectedFriend === this.newFriendConstant"
@@ -64,6 +64,13 @@ export class MainInterfaceComponent implements OnDestroy {
         }
         if (this.sendMessageSubscription) {
             this.sendMessageSubscription.unsubscribe();
+        }
+    }
+
+    public menuChange($event) {
+        this.selectedMenu = $event;
+        if (this.selectedMenu !== 'friends') {
+            this.selectedFriend = '';
         }
     }
 

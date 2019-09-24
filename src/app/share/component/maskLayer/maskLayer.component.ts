@@ -1,15 +1,18 @@
 import { Component, Input } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'mask-layer',
     template: `
         <div class="mask-layer-wrapper" *ngIf="show">
-            <img src="../../../../assets/img/loading.gif" />
         </div>
+        <img src="../../../../assets/img/loading.gif" *ngIf="show"
+            [style.left]="sanitizer.bypassSecurityTrustStyle('calc(50% - 120px)')"
+            [style.top]="sanitizer.bypassSecurityTrustStyle('calc(50% - 120px)')"/>
     `,
     styles: [`
         .mask-layer-wrapper {
-            position: absolute;
+            position: fixed;
             z-index: 10;
             height:100%;
             width:100%;
@@ -20,9 +23,14 @@ import { Component, Input } from '@angular/core';
         img {
             display: block;
             margin: 0 auto;
+            position: fixed;
         }
     `]
 })
 export class MaskLayerComponent {
     @Input() show = false;
+
+    constructor(public sanitizer: DomSanitizer) {
+
+    }
 }

@@ -48,7 +48,6 @@ import { Subscription } from 'rxjs';
     `]
 })
 export class FriendLabelComponent implements OnInit, OnDestroy {
-    @Input() oldSelectedFriend: string;
     @Input()
     public friendAdded: EventEmitter<FriendReponsePacket>;
     @Output()
@@ -58,10 +57,12 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
     public firstletters: string[] = [];
     public fl2FriendMap = new Map<string, UserAccount[]>();
     public choosed = new Map<string, boolean>();
+    public showMaskLayer = false;
     private nowChoosed: UserAccount;
     private userName = this.cookieService.get(USER_NAME);
     private isSingleClick = true;
     private friendAddedSubscription: Subscription;
+    private oldSelectedFriend: string;
 
     constructor(private httpService: HttpService, private cookieService: CookieService, private shareService: ShareService) {
 
@@ -173,9 +174,11 @@ export class FriendLabelComponent implements OnInit, OnDestroy {
         this.fl2FriendMap.clear();
         this.choosed.clear();
         this.nowChoosed = null;
+        this.showMaskLayer = true;
     }
 
     private addNewFriendRef() {
+        this.showMaskLayer = false;
         const newFriend: UserAccount = {
             userName: NEW_FRIEND
         };
