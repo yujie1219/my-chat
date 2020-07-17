@@ -21,7 +21,7 @@
     "@angular/router": "~7.2.0",
     "@types/uuid": "^3.4.5",
     "core-js": "^2.5.4",
-    "lodash": ">=4.17.13",
+    "lodash": ">=4.17.19",
     "ngx-bootstrap": "^4.2.0",
     "ngx-cookie-service": "^2.2.0",
     "primeicons": "^1.0.0",
